@@ -3,6 +3,14 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import express, { type NextFunction, type Request, type Response } from 'express';
+import {
+  dispatchLeadNotification,
+  dispatchTestAdminNotification,
+  getNotificationConfig,
+  getRecentNotificationLogs,
+  isRateLimited,
+  validateLeadNotificationPayload,
+} from './server/emailNotifications.ts';
 
 const PORT = Number(process.env.PORT || 3000);
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -115,6 +123,40 @@ async function startServer(): Promise<void> {
 
     fs.writeFileSync(resolvedTarget, buffer);
     res.status(201).json({ url: `/uploads/${filename}` });
+  });
+
+  app.post('/api/leads/notify', async (req, res) => {
+    const clientIp = String(req.ip || req.socket.remoteAddress || 'unknown');
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({
+        error: 'Demasiadas solicitudes en poco tiempo. Intenta nuevamente más tarde.',
+      });
+      return;
+    }
+
+    const validation = validateLeadNotificationPayload(req.body);
+    if (!validation.ok) {
+      res.status(400).json({ error: validation.error });
+      return;
+    }
+
+    const result = await dispatchLeadNotification(validation.data);
+    res.status(result.sent || result.deduplicated ? 200 : 202).json(result);
+  });
+
+  app.get('/api/admin/notifications/status', requireFirebaseAdmin, (req: AuthenticatedRequest, res) => {
+    const config = getNotificationConfig(req.adminEmail);
+    res.json({
+      ...config,
+      recentLogs: getRecentNotificationLogs(),
+    });
+  });
+
+  app.post('/api/admin/notifications/test', requireFirebaseAdmin, async (req: AuthenticatedRequest, res) => {
+    const result = await dispatchTestAdminNotification(
+      req.adminEmail || BOOTSTRAP_ADMIN_EMAIL
+    );
+    res.status(result.sent ? 200 : result.configured ? 502 : 200).json(result);
   });
 
   if (process.env.NODE_ENV !== 'production') {

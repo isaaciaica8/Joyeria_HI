@@ -17,6 +17,7 @@ import {
 import { auth, db, handleFirestoreError, OperationType } from '../firebase';
 import type {
   AdBanner,
+  AdminNotificationStatus,
   Lead,
   Product,
   ProductCategory,
@@ -280,6 +281,28 @@ export async function seedFirestoreIfEmpty(): Promise<void> {
   }
 }
 
+async function notifyAdminOfNewLead(payload: {
+  leadId: string;
+  name: string;
+  phone: string;
+  email: string;
+  productId?: string;
+  productName: string;
+  message: string;
+  source: 'ficha' | 'contacto';
+}): Promise<void> {
+  try {
+    await fetch('/api/leads/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(4500),
+    });
+  } catch {
+    // Email notification failure must never block lead persistence in Firestore
+  }
+}
+
 export async function createPublicLead(payload: {
   name: string;
   phone: string;
@@ -294,6 +317,11 @@ export async function createPublicLead(payload: {
   const cleanName = clampString(payload.name, 120);
   const cleanPhone = clampString(payload.phone, 32);
   const cleanEmail = clampString(payload.email, 160);
+  const cleanProductName = clampString(payload.productName || 'Consulta general', 160);
+  const cleanMessage = clampString(payload.message || '', 800);
+  const cleanSource: 'ficha' | 'contacto' =
+    payload.source === 'ficha' ? 'ficha' : 'contacto';
+  const cleanProductId = payload.productId ? sanitizeDocId(payload.productId) : undefined;
 
   if (cleanName.length < 2 || cleanPhone.length < 6 || !cleanEmail.includes('@')) {
     throw new Error(
@@ -305,23 +333,78 @@ export async function createPublicLead(payload: {
     name: cleanName,
     phone: cleanPhone,
     email: cleanEmail,
-    productName: clampString(payload.productName || 'Consulta general', 160),
-    message: clampString(payload.message || '', 800),
-    source: payload.source === 'ficha' ? 'ficha' : 'contacto',
+    productName: cleanProductName,
+    message: cleanMessage,
+    source: cleanSource,
     status: 'nuevo',
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
 
-  if (payload.productId) {
-    docData.productId = sanitizeDocId(payload.productId);
+  if (cleanProductId) {
+    docData.productId = cleanProductId;
   }
 
   try {
     await setDoc(doc(db, 'leads', id), docData);
   } catch (error) {
     handleFirestoreError(error, OperationType.CREATE, path);
+    return;
   }
+
+  await notifyAdminOfNewLead({
+    leadId: id,
+    name: cleanName,
+    phone: cleanPhone,
+    email: cleanEmail,
+    productId: cleanProductId,
+    productName: cleanProductName,
+    message: cleanMessage,
+    source: cleanSource,
+  });
+}
+
+export async function fetchAdminNotificationStatus(): Promise<AdminNotificationStatus> {
+  const idToken = await auth.currentUser?.getIdToken();
+  if (!idToken) {
+    throw new Error('Debes iniciar sesión como administrador.');
+  }
+  const response = await fetch('/api/admin/notifications/status', {
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error((data as { error?: string }).error || 'No se pudo consultar el estado.');
+  }
+  return data as AdminNotificationStatus;
+}
+
+export async function sendTestAdminNotification(): Promise<{
+  sent: boolean;
+  configured: boolean;
+  provider: string;
+  recipientEmail: string;
+  detail: string;
+}> {
+  const idToken = await auth.currentUser?.getIdToken();
+  if (!idToken) {
+    throw new Error('Debes iniciar sesión como administrador.');
+  }
+  const response = await fetch('/api/admin/notifications/test', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok && !(data as { detail?: string }).detail) {
+    throw new Error((data as { error?: string }).error || 'Error al probar el envío.');
+  }
+  return data as {
+    sent: boolean;
+    configured: boolean;
+    provider: string;
+    recipientEmail: string;
+    detail: string;
+  };
 }
 
 export async function recordProductView(productId: string): Promise<void> {

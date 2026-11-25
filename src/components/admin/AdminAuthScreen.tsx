@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, LogOut, ShieldAlert, ShieldCheck } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { BOOTSTRAP_ADMIN_EMAIL, signInWithGoogle, signOutAdmin } from '../../firebase';
+import { ThemeToggle } from '../ThemeToggle';
 
 interface AdminAuthScreenProps {
   currentUser: User | null;
@@ -40,37 +41,40 @@ export function AdminAuthScreen({
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F5F2] flex flex-col justify-center items-center px-4 py-10">
-      <div className="w-full max-w-md bg-white rounded-2xl border border-black/10 p-7 sm:p-9 shadow-sm">
-        <button
-          type="button"
-          onClick={onBackToStore}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#52525B] hover:text-[#18181B] transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Volver a Joyería HI</span>
-        </button>
+    <div className="min-h-screen bg-[#F6F5F2] dark:bg-[#0B1120] flex flex-col justify-center items-center px-4 py-10 transition-colors">
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl border border-black/10 dark:border-slate-800 p-7 sm:p-9 shadow-sm">
+        <div className="flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={onBackToStore}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#52525B] dark:text-slate-400 hover:text-[#18181B] dark:hover:text-slate-100 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Volver a Joyería HI</span>
+          </button>
+          <ThemeToggle variant="admin" />
+        </div>
 
         <div className="mt-6">
-          <div className="w-10 h-10 rounded-xl bg-[#18181B] text-[#FAF9F7] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[#18181B] dark:bg-[#C5A059] text-[#FAF9F7] dark:text-[#111113] flex items-center justify-center">
             {currentUser && !isAuthorizedAdmin ? (
-              <ShieldAlert className="w-5 h-5 text-amber-300" />
+              <ShieldAlert className="w-5 h-5 text-amber-300 dark:text-[#111113]" />
             ) : (
               <ShieldCheck className="w-5 h-5" />
             )}
           </div>
 
-          <h1 className="mt-4 font-display text-3xl font-semibold text-[#18181B]">
+          <h1 className="mt-4 font-display text-3xl font-semibold text-[#18181B] dark:text-slate-100">
             Acceso Administrador
           </h1>
-          <p className="mt-1.5 text-sm text-[#52525B]">
+          <p className="mt-1.5 text-sm text-[#52525B] dark:text-slate-400">
             Inicia sesión con tu cuenta de Google autorizada para gestionar el catálogo, campañas publicitarias, promociones y clientes de Joyería HI.
           </p>
         </div>
 
         {currentUser && !isAuthorizedAdmin ? (
           <div className="mt-6 space-y-4">
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-950 space-y-1">
+            <div className="rounded-xl border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/40 p-4 text-xs text-amber-950 dark:text-amber-200 space-y-1">
               <p className="font-semibold">Cuenta sin permisos administrativos</p>
               <p>
                 Sesión iniciada como <span className="font-medium">{currentUser.email}</span>. El acceso administrativo está reservado para el personal autorizado ({BOOTSTRAP_ADMIN_EMAIL}).
@@ -82,14 +86,14 @@ export function AdminAuthScreen({
                 type="button"
                 onClick={handleSwitchAccount}
                 disabled={loading}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-[#18181B] text-white text-sm font-medium hover:bg-[#2E2E33] cursor-pointer"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-[#18181B] dark:bg-[#C5A059] text-white dark:text-[#111113] text-sm font-medium hover:bg-[#2E2E33] dark:hover:bg-[#D4B372] cursor-pointer"
               >
                 Cambiar cuenta
               </button>
               <button
                 type="button"
                 onClick={() => void signOutAdmin()}
-                className="inline-flex items-center gap-1.5 py-2.5 px-4 rounded-xl border border-black/12 text-sm font-medium text-[#3F3F46] hover:bg-[#FAF9F7] cursor-pointer"
+                className="inline-flex items-center gap-1.5 py-2.5 px-4 rounded-xl border border-black/12 dark:border-slate-700 text-sm font-medium text-[#3F3F46] dark:text-slate-200 hover:bg-[#FAF9F7] dark:hover:bg-slate-800 cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Salir</span>
@@ -100,7 +104,7 @@ export function AdminAuthScreen({
           <div className="mt-6 space-y-4">
             {error && (
               <p
-                className="text-xs text-[#991B1B] bg-[#FEF2F2] border border-[#FECACA] rounded-lg px-3 py-2"
+                className="text-xs text-[#991B1B] dark:text-red-300 bg-[#FEF2F2] dark:bg-red-950/50 border border-[#FECACA] dark:border-red-900 rounded-lg px-3 py-2"
                 role="alert"
               >
                 {error}
@@ -111,7 +115,7 @@ export function AdminAuthScreen({
               type="button"
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full py-3 px-4 rounded-xl bg-[#18181B] text-[#FAF9F7] text-sm font-medium hover:bg-[#2E2E33] disabled:opacity-60 transition-colors cursor-pointer flex items-center justify-center gap-2.5"
+              className="w-full py-3 px-4 rounded-xl bg-[#18181B] dark:bg-[#F5F3EE] text-[#FAF9F7] dark:text-[#18181B] text-sm font-medium hover:bg-[#2E2E33] dark:hover:bg-[#E7E2D8] disabled:opacity-60 transition-colors cursor-pointer flex items-center justify-center gap-2.5"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -124,8 +128,8 @@ export function AdminAuthScreen({
           </div>
         )}
 
-        <div className="mt-6 pt-5 border-t border-black/8 flex items-center gap-2 text-xs text-[#6B6B73]">
-          <ShieldCheck className="w-4 h-4 text-[#8C6D2E] shrink-0" />
+        <div className="mt-6 pt-5 border-t border-black/8 dark:border-slate-800 flex items-center gap-2 text-xs text-[#6B6B73] dark:text-slate-400">
+          <ShieldCheck className="w-4 h-4 text-[#8C6D2E] dark:text-[#DFC58B] shrink-0" />
           <span>Autenticado con Firebase Auth · Reglas Firestore activas</span>
         </div>
       </div>

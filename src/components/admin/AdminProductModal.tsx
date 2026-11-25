@@ -138,20 +138,20 @@ export function AdminProductModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-3 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/75 backdrop-blur-[2px] p-3 sm:p-6 overflow-y-auto"
       role="dialog"
       aria-modal="true"
     >
-      <div className="w-full max-w-3xl bg-white rounded-2xl border border-black/10 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-black/8 shrink-0">
-          <h2 className="text-lg font-semibold text-[#18181B]">
+      <div className="w-full max-w-3xl bg-white dark:bg-slate-900 rounded-2xl border border-black/10 dark:border-slate-800 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-black/8 dark:border-slate-800 shrink-0">
+          <h2 className="text-lg font-semibold text-[#18181B] dark:text-slate-100">
             {initialProduct ? `Editar pieza · ${initialProduct.name}` : 'Nueva pieza en catálogo'}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Cerrar ventana"
-            className="p-2 rounded-lg text-[#52525B] hover:bg-black/5 cursor-pointer"
+            className="p-2 rounded-lg text-[#52525B] dark:text-slate-400 hover:bg-black/5 dark:hover:bg-slate-800 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -160,7 +160,7 @@ export function AdminProductModal({
         <form onSubmit={handleSubmit} className="overflow-y-auto p-6 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-[#3F3F46] mb-1">
+              <label className="block text-xs font-medium text-[#3F3F46] dark:text-slate-300 mb-1">
                 Nombre de la joya *
               </label>
               <input
@@ -169,12 +169,12 @@ export function AdminProductModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej. Anillo Solitario Diamante 18k"
-                className="w-full px-3.5 py-2 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                className="w-full px-3.5 py-2 rounded-xl border border-black/12 dark:border-slate-700 bg-[#FAF9F7] dark:bg-slate-950 text-sm text-[#18181B] dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#3F3F46] mb-1">
+              <label className="block text-xs font-medium text-[#3F3F46] dark:text-slate-300 mb-1">
                 SKU (opcional)
               </label>
               <input
@@ -182,20 +182,20 @@ export function AdminProductModal({
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
                 placeholder="Automático"
-                className="w-full px-3.5 py-2 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm font-mono-tabular focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                className="w-full px-3.5 py-2 rounded-xl border border-black/12 dark:border-slate-700 bg-[#FAF9F7] dark:bg-slate-950 text-sm text-[#18181B] dark:text-slate-100 font-mono-tabular placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-medium text-[#3F3F46] mb-1">
+              <label className="block text-xs font-medium text-[#3F3F46] dark:text-slate-300 mb-1">
                 Categoría *
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as ProductCategory)}
-                className="w-full px-3.5 py-2 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40 cursor-pointer"
+                className="w-full px-3.5 py-2 rounded-xl border border-black/12 dark:border-slate-700 bg-[#FAF9F7] dark:bg-slate-950 text-sm text-[#18181B] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40 cursor-pointer"
               >
                 {PRODUCT_CATEGORIES.map((c) => (
                   <option key={c} value={c}>
@@ -206,13 +206,13 @@ export function AdminProductModal({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#3F3F46] mb-1">
+              <label className="block text-xs font-medium text-[#3F3F46] dark:text-slate-300 mb-1">
                 Material *
               </label>
               <select
                 value={material}
                 onChange={(e) => setMaterial(e.target.value as ProductMaterial)}
-                className="w-full px-3.5 py-2 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40 cursor-pointer"
+                className="w-full px-3.5 py-2 rounded-xl border border-black/12 dark:border-slate-700 bg-[#FAF9F7] dark:bg-slate-950 text-sm text-[#18181B] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40 cursor-pointer"
               >
                 {PRODUCT_MATERIALS.map((m) => (
                   <option key={m} value={m}>
@@ -223,7 +223,7 @@ export function AdminProductModal({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#3F3F46] mb-1">
+              <label className="block text-xs font-medium text-[#3F3F46] dark:text-slate-300 mb-1">
                 Quilataje / Ley *
               </label>
               <input
@@ -232,14 +232,14 @@ export function AdminProductModal({
                 value={karat}
                 onChange={(e) => setKarat(e.target.value)}
                 placeholder="Ej. 18k, 14k, 925"
-                className="w-full px-3.5 py-2 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                className="w-full px-3.5 py-2 rounded-xl border border-black/12 dark:border-slate-700 bg-[#FAF9F7] dark:bg-slate-950 text-sm text-[#18181B] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
             <div>
-              <label className="block text-xs font-medium text-[#3F3F46] mb-1">
+              <label className="block text-xs font-medium text-[#3F3F46] dark:text-slate-300 mb-1">
                 Precio lista (MXN) *
               </label>
               <input
@@ -250,12 +250,12 @@ export function AdminProductModal({
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="25000"
-                className="w-full px-3.5 py-2 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm font-mono-tabular focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                className="w-full px-3.5 py-2 rounded-xl border border-black/12 dark:border-slate-700 bg-[#FAF9F7] dark:bg-slate-950 text-sm text-[#18181B] dark:text-slate-100 font-mono-tabular focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#3F3F46] mb-1">
+              <label className="block text-xs font-medium text-[#3F3F46] dark:text-slate-300 mb-1">
                 Descuento (%)
               </label>
               <input
@@ -265,20 +265,22 @@ export function AdminProductModal({
                 step={1}
                 value={discountPercent}
                 onChange={(e) => setDiscountPercent(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm font-mono-tabular focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                className="w-full px-3.5 py-2 rounded-xl border border-black/12 dark:border-slate-700 bg-[#FAF9F7] dark:bg-slate-950 text-sm text-[#18181B] dark:text-slate-100 font-mono-tabular focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
               />
             </div>
 
-            <div className="rounded-xl bg-[#FAF9F7] border border-black/8 px-3.5 py-2">
-              <p className="text-[11px] text-[#6B6B73]">Precio final al público</p>
-              <p className="font-mono-tabular text-base font-semibold text-[#18181B]">
+            <div className="rounded-xl bg-[#FAF9F7] dark:bg-slate-950 border border-black/8 dark:border-slate-800 px-3.5 py-2">
+              <p className="text-[11px] text-[#6B6B73] dark:text-slate-400">
+                Precio final al público
+              </p>
+              <p className="font-mono-tabular text-base font-semibold text-[#18181B] dark:text-slate-100">
                 {formatCurrencyMXN(previewFinalPrice)} MXN
               </p>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#3F3F46] mb-1">
+            <label className="block text-xs font-medium text-[#3F3F46] dark:text-slate-300 mb-1">
               Descripción
             </label>
             <textarea
@@ -286,13 +288,13 @@ export function AdminProductModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe detalles de diseño, piedras, medidas y acabados..."
-              className="w-full px-3.5 py-2 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+              className="w-full px-3.5 py-2 rounded-xl border border-black/12 dark:border-slate-700 bg-[#FAF9F7] dark:bg-slate-950 text-sm text-[#18181B] dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
             />
           </div>
 
           {/* Drag & Drop Multi-photo uploader */}
           <div className="space-y-3">
-            <label className="block text-xs font-medium text-[#3F3F46]">
+            <label className="block text-xs font-medium text-[#3F3F46] dark:text-slate-300">
               Fotografías del producto (arrastra y suelta varias fotos)
             </label>
 
@@ -306,8 +308,8 @@ export function AdminProductModal({
               onClick={() => fileInputRef.current?.click()}
               className={`rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
                 isDragging
-                  ? 'border-[#8C6D2E] bg-[#8C6D2E]/8'
-                  : 'border-black/15 bg-[#FAF9F7] hover:border-black/30'
+                  ? 'border-[#8C6D2E] bg-[#8C6D2E]/8 dark:border-[#DFC58B]'
+                  : 'border-black/15 dark:border-slate-700 bg-[#FAF9F7] dark:bg-slate-950 hover:border-black/30 dark:hover:border-slate-500'
               }`}
             >
               <input
@@ -320,13 +322,13 @@ export function AdminProductModal({
                   if (e.target.files) void processFiles(e.target.files);
                 }}
               />
-              <Upload className="w-6 h-6 text-[#8C6D2E] mx-auto mb-2" />
-              <p className="text-sm font-medium text-[#18181B]">
+              <Upload className="w-6 h-6 text-[#8C6D2E] dark:text-[#DFC58B] mx-auto mb-2" />
+              <p className="text-sm font-medium text-[#18181B] dark:text-slate-100">
                 {uploading
                   ? 'Subiendo imágenes...'
                   : 'Arrastra tus fotos aquí o haz clic para seleccionar'}
               </p>
-              <p className="text-xs text-[#6B6B73] mt-1">
+              <p className="text-xs text-[#6B6B73] dark:text-slate-400 mt-1">
                 Formatos JPG, PNG o WebP · Máximo 5 MB por fotografía
               </p>
             </div>
@@ -336,7 +338,7 @@ export function AdminProductModal({
                 {images.map((url, idx) => (
                   <div
                     key={`${url}-${idx}`}
-                    className="relative group rounded-xl overflow-hidden border border-black/10 bg-[#F4F1EC] aspect-[4/3]"
+                    className="relative group rounded-xl overflow-hidden border border-black/10 dark:border-slate-700 bg-[#F4F1EC] dark:bg-slate-800 aspect-[4/3]"
                   >
                     <JewelryImage
                       src={url}
@@ -372,7 +374,7 @@ export function AdminProductModal({
             )}
 
             {images.length === 0 && (
-              <p className="inline-flex items-center gap-1.5 text-xs text-[#6B6B73]">
+              <p className="inline-flex items-center gap-1.5 text-xs text-[#6B6B73] dark:text-slate-400">
                 <ImagePlus className="w-3.5 h-3.5" />
                 <span>Si no subes fotos, se asignará una imagen de referencia de Joyería HI.</span>
               </p>
@@ -380,45 +382,45 @@ export function AdminProductModal({
           </div>
 
           <div className="flex flex-wrap items-center gap-6 pt-2">
-            <label className="inline-flex items-center gap-2 text-sm text-[#18181B] cursor-pointer">
+            <label className="inline-flex items-center gap-2 text-sm text-[#18181B] dark:text-slate-200 cursor-pointer">
               <input
                 type="checkbox"
                 checked={available}
                 onChange={(e) => setAvailable(e.target.checked)}
-                className="w-4 h-4 accent-[#18181B] rounded"
+                className="w-4 h-4 accent-[#8C6D2E] rounded"
               />
               <span>Disponible en tienda</span>
             </label>
 
-            <label className="inline-flex items-center gap-2 text-sm text-[#18181B] cursor-pointer">
+            <label className="inline-flex items-center gap-2 text-sm text-[#18181B] dark:text-slate-200 cursor-pointer">
               <input
                 type="checkbox"
                 checked={featured}
                 onChange={(e) => setFeatured(e.target.checked)}
-                className="w-4 h-4 accent-[#18181B] rounded"
+                className="w-4 h-4 accent-[#8C6D2E] rounded"
               />
               <span>Destacar en catálogo</span>
             </label>
           </div>
 
           {error && (
-            <p className="text-xs text-[#991B1B]" role="alert">
+            <p className="text-xs text-[#991B1B] dark:text-red-400" role="alert">
               {error}
             </p>
           )}
 
-          <div className="pt-4 border-t border-black/8 flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-black/8 dark:border-slate-800 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-black/12 text-sm font-medium text-[#3F3F46] hover:bg-[#FAF9F7] cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-black/12 dark:border-slate-700 text-sm font-medium text-[#3F3F46] dark:text-slate-300 hover:bg-[#FAF9F7] dark:hover:bg-slate-800 cursor-pointer"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={saving || uploading}
-              className="px-5 py-2.5 rounded-xl bg-[#18181B] text-white text-sm font-medium hover:bg-[#2E2E33] disabled:opacity-60 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-[#18181B] dark:bg-[#C5A059] text-white dark:text-[#111113] text-sm font-medium hover:bg-[#2E2E33] dark:hover:bg-[#D4B372] disabled:opacity-60 cursor-pointer"
             >
               {saving ? 'Guardando...' : initialProduct ? 'Guardar cambios' : 'Publicar pieza'}
             </button>

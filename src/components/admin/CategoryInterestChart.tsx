@@ -9,6 +9,7 @@ import {
   YAxis,
 } from 'recharts';
 import { BarChart3 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 import type {
   Lead,
   Product,
@@ -131,10 +132,10 @@ function CustomInterestTooltip({ active, payload }: CustomTooltipProps) {
   const total = visibleEntries.reduce((sum, entry) => sum + Number(entry.value || 0), 0);
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl shadow-md px-3.5 py-2.5 text-xs min-w-[180px]">
-      <div className="flex items-center justify-between gap-4 pb-1.5 mb-1.5 border-b border-slate-100">
-        <span className="font-semibold text-slate-900 capitalize">{heading}</span>
-        <span className="font-mono-tabular font-semibold text-[#8C6D2E]">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-md px-3.5 py-2.5 text-xs min-w-[180px]">
+      <div className="flex items-center justify-between gap-4 pb-1.5 mb-1.5 border-b border-slate-100 dark:border-slate-800">
+        <span className="font-semibold text-slate-900 dark:text-slate-100 capitalize">{heading}</span>
+        <span className="font-mono-tabular font-semibold text-[#8C6D2E] dark:text-[#DFC58B]">
           {total} {total === 1 ? 'evento' : 'eventos'}
         </span>
       </div>
@@ -144,14 +145,14 @@ function CustomInterestTooltip({ active, payload }: CustomTooltipProps) {
         <div className="space-y-1">
           {visibleEntries.map((entry) => (
             <div key={entry.dataKey || entry.name} className="flex items-center justify-between gap-4">
-              <span className="inline-flex items-center gap-1.5 text-slate-700">
+              <span className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
                 <span
                   className="w-2 h-2 rounded-xs shrink-0"
                   style={{ backgroundColor: entry.color }}
                 />
                 <span>{entry.name}</span>
               </span>
-              <span className="font-mono-tabular font-medium text-slate-900">
+              <span className="font-mono-tabular font-medium text-slate-900 dark:text-slate-100">
                 {entry.value}
               </span>
             </div>
@@ -167,9 +168,19 @@ export function CategoryInterestChart({
   leads,
   productViews,
 }: CategoryInterestChartProps) {
+  const { isDark } = useTheme();
   const [range, setRange] = useState<TimeRange>('30d');
   const [metric, setMetric] = useState<MetricMode>('all');
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | null>(null);
+
+  const categoryColors = useMemo<Record<ProductCategory, string>>(
+    () => ({
+      ...CATEGORY_COLORS,
+      Anillos: isDark ? '#D4AF63' : '#8C6D2E',
+      Collares: isDark ? '#E2E8F0' : '#18181B',
+    }),
+    [isDark]
+  );
 
   const { chartData, categoryTotals, totalEvents, unmatchedLeadsCount } = useMemo(() => {
     const categoryById = new Map<string, ProductCategory>();
@@ -314,19 +325,19 @@ export function CategoryInterestChart({
   return (
     <section
       aria-label="Volumen de interés por categoría a lo largo del tiempo"
-      className="bg-white rounded-xl border border-slate-200 p-5 sm:p-6 space-y-5"
+      className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 space-y-5 transition-colors"
     >
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-baseline gap-2.5 flex-wrap">
-            <h2 className="text-base font-semibold text-slate-900">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
               Volumen de interés por categoría
             </h2>
-            <span className="font-mono-tabular text-xs font-semibold text-[#8C6D2E]">
+            <span className="font-mono-tabular text-xs font-semibold text-[#8C6D2E] dark:text-[#DFC58B]">
               {visibleTotal} {visibleTotal === 1 ? 'interacción' : 'interacciones'}
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Evolución temporal de consultas en fichas de producto y registros de clientes interesados.
           </p>
         </div>
@@ -336,7 +347,7 @@ export function CategoryInterestChart({
           <div
             role="group"
             aria-label="Filtrar tipo de interés"
-            className="inline-flex items-center p-1 rounded-lg bg-slate-100"
+            className="inline-flex items-center p-1 rounded-lg bg-slate-100 dark:bg-slate-800"
           >
             {METRIC_OPTIONS.map((opt) => {
               const active = metric === opt.id;
@@ -347,8 +358,8 @@ export function CategoryInterestChart({
                   onClick={() => setMetric(opt.id)}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
                     active
-                      ? 'bg-white text-slate-900 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                   }`}
                 >
                   {opt.label}
@@ -361,7 +372,7 @@ export function CategoryInterestChart({
           <div
             role="group"
             aria-label="Seleccionar período de tiempo"
-            className="inline-flex items-center p-1 rounded-lg bg-slate-100"
+            className="inline-flex items-center p-1 rounded-lg bg-slate-100 dark:bg-slate-800"
           >
             {RANGE_OPTIONS.map((opt) => {
               const active = range === opt.id;
@@ -372,8 +383,8 @@ export function CategoryInterestChart({
                   onClick={() => setRange(opt.id)}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
                     active
-                      ? 'bg-white text-slate-900 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                   }`}
                 >
                   {opt.label}
@@ -386,14 +397,14 @@ export function CategoryInterestChart({
 
       {/* Chart Canvas */}
       {totalEvents === 0 ? (
-        <div className="h-[280px] sm:h-[310px] rounded-xl border border-dashed border-slate-200 bg-slate-50/50 flex flex-col items-center justify-center text-center px-6">
-          <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center mb-3">
-            <BarChart3 className="w-5 h-5 text-[#8C6D2E]" />
+        <div className="h-[280px] sm:h-[310px] rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col items-center justify-center text-center px-6">
+          <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center mb-3">
+            <BarChart3 className="w-5 h-5 text-[#8C6D2E] dark:text-[#DFC58B]" />
           </div>
-          <p className="text-sm font-medium text-slate-900">
+          <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
             Sin actividad fechada en este período
           </p>
-          <p className="text-xs text-slate-500 mt-1 max-w-md">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md">
             Cuando los visitantes consulten fichas de joyería o envíen solicitudes de interés,
             su volumen por categoría se graficará aquí en tiempo real.
           </p>
@@ -408,25 +419,29 @@ export function CategoryInterestChart({
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
-                stroke="#E2E8F0"
+                stroke={isDark ? '#1E293B' : '#E2E8F0'}
               />
               <XAxis
                 dataKey="label"
-                tick={{ fontSize: 11, fill: '#64748B' }}
+                tick={{ fontSize: 11, fill: isDark ? '#94A3B8' : '#64748B' }}
                 tickLine={false}
-                axisLine={{ stroke: '#E2E8F0' }}
+                axisLine={{ stroke: isDark ? '#334155' : '#E2E8F0' }}
                 minTickGap={18}
               />
               <YAxis
                 allowDecimals={false}
-                tick={{ fontSize: 11, fill: '#64748B' }}
+                tick={{ fontSize: 11, fill: isDark ? '#94A3B8' : '#64748B' }}
                 tickLine={false}
                 axisLine={false}
                 width={38}
               />
               <Tooltip
                 content={<CustomInterestTooltip />}
-                cursor={{ fill: 'rgba(148, 163, 184, 0.12)' }}
+                cursor={{
+                  fill: isDark
+                    ? 'rgba(148, 163, 184, 0.08)'
+                    : 'rgba(148, 163, 184, 0.12)',
+                }}
               />
               {visibleCategories.map((cat, index) => (
                 <Bar
@@ -434,7 +449,7 @@ export function CategoryInterestChart({
                   dataKey={cat}
                   name={cat}
                   stackId="interest"
-                  fill={CATEGORY_COLORS[cat]}
+                  fill={categoryColors[cat]}
                   maxBarSize={36}
                   radius={
                     index === visibleCategories.length - 1 ? [3, 3, 0, 0] : [0, 0, 0, 0]
@@ -447,7 +462,7 @@ export function CategoryInterestChart({
       )}
 
       {/* Interactive Category Summary Footer */}
-      <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {PRODUCT_CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat;
@@ -461,16 +476,16 @@ export function CategoryInterestChart({
                 }
                 className={`inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
                   isSelected
-                    ? 'border-[#18181B] bg-slate-50 text-slate-900 font-semibold'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    ? 'border-[#18181B] dark:border-[#DFC58B] bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                 } ${isDimmed ? 'opacity-50' : ''}`}
               >
                 <span
                   className="w-2.5 h-2.5 rounded-xs shrink-0"
-                  style={{ backgroundColor: CATEGORY_COLORS[cat] }}
+                  style={{ backgroundColor: categoryColors[cat] }}
                 />
                 <span>{cat}</span>
-                <span className="font-mono-tabular font-semibold text-slate-900">
+                <span className="font-mono-tabular font-semibold text-slate-900 dark:text-slate-100">
                   {categoryTotals[cat]}
                 </span>
               </button>
@@ -480,7 +495,7 @@ export function CategoryInterestChart({
             <button
               type="button"
               onClick={() => setSelectedCategory(null)}
-              className="text-xs font-medium text-[#8C6D2E] hover:underline px-1.5 cursor-pointer"
+              className="text-xs font-medium text-[#8C6D2E] dark:text-[#DFC58B] hover:underline px-1.5 cursor-pointer"
             >
               Ver todas
             </button>

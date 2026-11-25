@@ -117,3 +117,22 @@ export interface AuthStatusResponse {
   authenticated: boolean;
   username?: string;
 }
+
+export interface NotificationLogEntry {
+  id: string;
+  createdAt: string;
+  leadId: string;
+  clientName: string;
+  productName: string;
+  source: 'ficha' | 'contacto' | 'prueba';
+  status: 'enviado' | 'pendiente_configuracion' | 'error';
+  detail: string;
+}
+
+export interface AdminNotificationStatus {
+  configured: boolean;
+  provider: 'resend' | 'smtp' | 'none';
+  recipientEmail: string;
+  recentLogs: NotificationLogEntry[];
+}
+

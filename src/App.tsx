@@ -174,8 +174,10 @@ export default function App() {
   if (mode === 'admin') {
     if (!authReady) {
       return (
-        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6">
-          <div className="text-sm text-slate-600">Verificando sesión de Firebase...</div>
+        <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1120] flex items-center justify-center p-6">
+          <div className="text-sm text-slate-600 dark:text-slate-300">
+            Verificando sesión de Firebase...
+          </div>
         </div>
       );
     }
@@ -202,9 +204,13 @@ export default function App() {
 
   if (!productsLoaded && !bannersLoaded) {
     return (
-      <div className="min-h-screen bg-[#FAF9F7] flex flex-col items-center justify-center p-6">
-        <p className="font-display text-3xl font-semibold text-[#18181B]">Joyería HI</p>
-        <p className="mt-2 text-sm text-[#6B6B73]">Conectando con catálogo...</p>
+      <div className="min-h-screen bg-[#FAF9F7] dark:bg-[#0F0F12] flex flex-col items-center justify-center p-6">
+        <p className="font-display text-3xl font-semibold text-[#18181B] dark:text-[#F5F3EE]">
+          Joyería HI
+        </p>
+        <p className="mt-2 text-sm text-[#6B6B73] dark:text-[#A1A1AA]">
+          Conectando con catálogo...
+        </p>
       </div>
     );
   }

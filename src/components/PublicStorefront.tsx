@@ -32,6 +32,7 @@ import { exportCatalogToExcel, exportCatalogToPDF } from '../utils/exportUtils';
 import { BannerPreview } from './BannerPreview';
 import { JewelryImage } from './JewelryImage';
 import { ProductDetailModal } from './ProductDetailModal';
+import { ThemeToggle } from './ThemeToggle';
 
 interface PublicStorefrontProps {
   data: StorefrontResponse;
@@ -189,10 +190,10 @@ export function PublicStorefront({
     (searchQuery.trim() ? 1 : 0);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF9F7] text-[#18181B]">
+    <div className="min-h-screen flex flex-col bg-[#FAF9F7] dark:bg-[#0F0F12] text-[#18181B] dark:text-[#F5F3EE] transition-colors duration-200">
       {/* Slim Promo Strip (<= 40px) */}
       {promoStripBanner && !stripDismissed && (
-        <div className="bg-[#18181B] text-[#FAF9F7] h-9 px-4 flex items-center justify-between text-xs">
+        <div className="bg-[#18181B] dark:bg-[#1C1915] text-[#FAF9F7] h-9 px-4 flex items-center justify-between text-xs border-b border-transparent dark:border-white/10">
           <div className="w-6 shrink-0" />
           <button
             type="button"
@@ -213,7 +214,7 @@ export function PublicStorefront({
       )}
 
       {/* Top Navigation Bar — 3-Zone Contract */}
-      <header className="sticky top-0 z-30 bg-[#FAF9F7]/95 backdrop-blur-md border-b border-black/8">
+      <header className="sticky top-0 z-30 bg-[#FAF9F7]/95 dark:bg-[#0F0F12]/95 backdrop-blur-md border-b border-black/8 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
           {/* Zone 1: Brand Wordmark */}
           <a
@@ -222,20 +223,20 @@ export function PublicStorefront({
               e.preventDefault();
               scrollToSection('inicio');
             }}
-            className="font-display text-2xl font-semibold tracking-tight text-[#18181B] whitespace-nowrap shrink-0"
+            className="font-display text-2xl font-semibold tracking-tight text-[#18181B] dark:text-[#F5F3EE] whitespace-nowrap shrink-0"
           >
             Joyería HI
           </a>
 
           {/* Zone 2: 4 Clean Text Nav Links */}
-          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-[#52525B]">
+          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-[#52525B] dark:text-[#A1A1AA]">
             <a
               href="#inicio"
               onClick={(e) => {
                 e.preventDefault();
                 scrollToSection('inicio');
               }}
-              className="hover:text-[#18181B] transition-colors whitespace-nowrap shrink-0"
+              className="hover:text-[#18181B] dark:hover:text-[#F5F3EE] transition-colors whitespace-nowrap shrink-0"
             >
               Inicio
             </a>
@@ -245,7 +246,7 @@ export function PublicStorefront({
                 e.preventDefault();
                 scrollToSection('catalogo');
               }}
-              className="hover:text-[#18181B] transition-colors whitespace-nowrap shrink-0"
+              className="hover:text-[#18181B] dark:hover:text-[#F5F3EE] transition-colors whitespace-nowrap shrink-0"
             >
               Catálogo
             </a>
@@ -255,7 +256,7 @@ export function PublicStorefront({
                 e.preventDefault();
                 scrollToSection('promociones');
               }}
-              className="hover:text-[#18181B] transition-colors whitespace-nowrap shrink-0"
+              className="hover:text-[#18181B] dark:hover:text-[#F5F3EE] transition-colors whitespace-nowrap shrink-0"
             >
               Promociones
             </a>
@@ -265,18 +266,19 @@ export function PublicStorefront({
                 e.preventDefault();
                 scrollToSection('contacto');
               }}
-              className="hover:text-[#18181B] transition-colors whitespace-nowrap shrink-0"
+              className="hover:text-[#18181B] dark:hover:text-[#F5F3EE] transition-colors whitespace-nowrap shrink-0"
             >
               Contacto
             </a>
           </nav>
 
-          {/* Zone 3: 1 Primary Action + Mobile Menu Trigger */}
+          {/* Zone 3: Theme Toggle + Primary Action + Mobile Menu Trigger */}
           <div className="flex items-center gap-2 shrink-0">
+            <ThemeToggle variant="store" />
             <button
               type="button"
               onClick={onOpenAdmin}
-              className="px-4 py-2 rounded-lg border border-black/15 bg-white text-xs sm:text-sm font-medium text-[#18181B] hover:bg-[#18181B] hover:text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-4 py-2 rounded-lg border border-black/15 dark:border-white/15 bg-white dark:bg-[#18181D] text-xs sm:text-sm font-medium text-[#18181B] dark:text-[#F5F3EE] hover:bg-[#18181B] hover:text-white dark:hover:bg-[#F5F3EE] dark:hover:text-[#18181B] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               Administrador
             </button>
@@ -284,7 +286,7 @@ export function PublicStorefront({
               type="button"
               onClick={() => setMobileMenuOpen((v) => !v)}
               aria-label="Abrir menú de navegación"
-              className="md:hidden p-2 rounded-lg text-[#18181B] hover:bg-black/5 cursor-pointer"
+              className="md:hidden p-2 rounded-lg text-[#18181B] dark:text-[#F5F3EE] hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -293,7 +295,7 @@ export function PublicStorefront({
 
         {/* Mobile Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-black/8 bg-white px-4 py-3 space-y-1">
+          <div className="md:hidden border-t border-black/8 dark:border-white/10 bg-white dark:bg-[#18181D] px-4 py-3 space-y-1">
             {[
               { id: 'inicio', label: 'Inicio' },
               { id: 'catalogo', label: 'Catálogo' },
@@ -304,7 +306,7 @@ export function PublicStorefront({
                 key={item.id}
                 type="button"
                 onClick={() => scrollToSection(item.id)}
-                className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#18181B] hover:bg-[#FAF9F7] cursor-pointer"
+                className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#18181B] dark:text-[#F5F3EE] hover:bg-[#FAF9F7] dark:hover:bg-[#23232A] cursor-pointer"
               >
                 {item.label}
               </button>
@@ -357,8 +359,8 @@ export function PublicStorefront({
                         aria-label={`Ir a campaña ${idx + 1}: ${b.title}`}
                         className={`h-2 rounded-full transition-all cursor-pointer ${
                           idx === safeCarouselIndex
-                            ? 'w-7 bg-[#18181B]'
-                            : 'w-2 bg-black/20 hover:bg-black/40'
+                            ? 'w-7 bg-[#18181B] dark:bg-[#DFC58B]'
+                            : 'w-2 bg-black/20 dark:bg-white/25 hover:bg-black/40 dark:hover:bg-white/45'
                         }`}
                       />
                     ))}
@@ -382,34 +384,50 @@ export function PublicStorefront({
           )}
 
           {/* Boutique Value Strip */}
-          <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4 border-y border-black/8 py-5">
+          <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4 border-y border-black/8 dark:border-white/10 py-5">
             <div>
-              <p className="text-sm font-semibold text-[#18181B]">Metales Certificados</p>
-              <p className="text-xs text-[#6B6B73] mt-0.5">Oro 14k, 18k, Platino 950 y Plata .925</p>
+              <p className="text-sm font-semibold text-[#18181B] dark:text-[#F5F3EE]">
+                Metales Certificados
+              </p>
+              <p className="text-xs text-[#6B6B73] dark:text-[#A1A1AA] mt-0.5">
+                Oro 14k, 18k, Platino 950 y Plata .925
+              </p>
             </div>
             <div>
-              <p className="text-sm font-semibold text-[#18181B]">Meses Sin Intereses</p>
-              <p className="text-xs text-[#6B6B73] mt-0.5">Planes de 3, 6, 9, 12 y 18 mensualidades</p>
+              <p className="text-sm font-semibold text-[#18181B] dark:text-[#F5F3EE]">
+                Meses Sin Intereses
+              </p>
+              <p className="text-xs text-[#6B6B73] dark:text-[#A1A1AA] mt-0.5">
+                Planes de 3, 6, 9, 12 y 18 mensualidades
+              </p>
             </div>
             <div>
-              <p className="text-sm font-semibold text-[#18181B]">Asesoría Directa</p>
-              <p className="text-xs text-[#6B6B73] mt-0.5">Atención inmediata por WhatsApp o en tienda</p>
+              <p className="text-sm font-semibold text-[#18181B] dark:text-[#F5F3EE]">
+                Asesoría Directa
+              </p>
+              <p className="text-xs text-[#6B6B73] dark:text-[#A1A1AA] mt-0.5">
+                Atención inmediata por WhatsApp o en tienda
+              </p>
             </div>
             <div>
-              <p className="text-sm font-semibold text-[#18181B]">Garantía de Taller</p>
-              <p className="text-xs text-[#6B6B73] mt-0.5">Limpieza y ajuste sin costo en tu pieza</p>
+              <p className="text-sm font-semibold text-[#18181B] dark:text-[#F5F3EE]">
+                Garantía de Taller
+              </p>
+              <p className="text-xs text-[#6B6B73] dark:text-[#A1A1AA] mt-0.5">
+                Limpieza y ajuste sin costo en tu pieza
+              </p>
             </div>
           </div>
         </section>
 
         {/* 2. CATÁLOGO */}
         <section id="catalogo" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-black/8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-black/8 dark:border-white/10">
             <div>
-              <p className="text-xs font-medium uppercase tracking-widest text-[#8C6D2E]">
+              <p className="text-xs font-medium uppercase tracking-widest text-[#8C6D2E] dark:text-[#DFC58B]">
                 Colección Permanente
               </p>
-              <h2 className="mt-1 font-display text-3xl sm:text-4xl font-semibold text-[#18181B]">
+              <h2 className="mt-1 font-display text-3xl sm:text-4xl font-semibold text-[#18181B] dark:text-[#F5F3EE]">
                 Catálogo Joyería HI
               </h2>
             </div>
@@ -418,17 +436,17 @@ export function PublicStorefront({
               <button
                 type="button"
                 onClick={() => exportCatalogToExcel(filteredProducts)}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-black/12 bg-white text-xs font-medium text-[#18181B] hover:bg-[#F4F1EC] transition-colors whitespace-nowrap cursor-pointer"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-black/12 dark:border-white/15 bg-white dark:bg-[#18181D] text-xs font-medium text-[#18181B] dark:text-[#F5F3EE] hover:bg-[#F4F1EC] dark:hover:bg-[#23232A] transition-colors whitespace-nowrap cursor-pointer"
               >
-                <FileSpreadsheet className="w-3.5 h-3.5 text-[#15803D]" />
+                <FileSpreadsheet className="w-3.5 h-3.5 text-[#15803D] dark:text-emerald-400" />
                 <span>Catálogo Excel</span>
               </button>
               <button
                 type="button"
                 onClick={() => exportCatalogToPDF(filteredProducts)}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-black/12 bg-white text-xs font-medium text-[#18181B] hover:bg-[#F4F1EC] transition-colors whitespace-nowrap cursor-pointer"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-black/12 dark:border-white/15 bg-white dark:bg-[#18181D] text-xs font-medium text-[#18181B] dark:text-[#F5F3EE] hover:bg-[#F4F1EC] dark:hover:bg-[#23232A] transition-colors whitespace-nowrap cursor-pointer"
               >
-                <Download className="w-3.5 h-3.5 text-[#8C6D2E]" />
+                <Download className="w-3.5 h-3.5 text-[#8C6D2E] dark:text-[#DFC58B]" />
                 <span>Catálogo PDF</span>
               </button>
             </div>
@@ -439,19 +457,19 @@ export function PublicStorefront({
             <div className="flex flex-col lg:flex-row gap-3">
               {/* Search Bar */}
               <div className="relative flex-1">
-                <Search className="w-4 h-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Search className="w-4 h-4 text-[#71717A] dark:text-[#A1A1AA] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar por nombre, material, piedra o palabra clave..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-black/12 bg-white text-sm text-[#18181B] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-black/12 dark:border-white/15 bg-white dark:bg-[#18181D] text-sm text-[#18181B] dark:text-[#F5F3EE] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
                 />
               </div>
 
               {/* Material, Price, Promo Filters */}
               <div className="flex flex-wrap items-center gap-2.5">
-                <div className="flex items-center gap-1.5 text-xs text-[#52525B] mr-1">
+                <div className="flex items-center gap-1.5 text-xs text-[#52525B] dark:text-[#A1A1AA] mr-1">
                   <SlidersHorizontal className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Filtros:</span>
                 </div>
@@ -460,7 +478,7 @@ export function PublicStorefront({
                   aria-label="Filtrar por material"
                   value={selectedMaterial}
                   onChange={(e) => setSelectedMaterial(e.target.value)}
-                  className="px-3 py-2.5 rounded-xl border border-black/12 bg-white text-xs sm:text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40 cursor-pointer"
+                  className="px-3 py-2.5 rounded-xl border border-black/12 dark:border-white/15 bg-white dark:bg-[#18181D] text-xs sm:text-sm text-[#18181B] dark:text-[#F5F3EE] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40 cursor-pointer"
                 >
                   <option value="Todos">Todos los materiales</option>
                   {PRODUCT_MATERIALS.map((mat) => (
@@ -474,7 +492,7 @@ export function PublicStorefront({
                   aria-label="Filtrar por rango de precio"
                   value={priceRange}
                   onChange={(e) => setPriceRange(e.target.value as PriceRangeKey)}
-                  className="px-3 py-2.5 rounded-xl border border-black/12 bg-white text-xs sm:text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40 cursor-pointer"
+                  className="px-3 py-2.5 rounded-xl border border-black/12 dark:border-white/15 bg-white dark:bg-[#18181D] text-xs sm:text-sm text-[#18181B] dark:text-[#F5F3EE] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40 cursor-pointer"
                 >
                   <option value="all">Cualquier precio</option>
                   <option value="under-25k">Hasta $25,000</option>
@@ -487,8 +505,8 @@ export function PublicStorefront({
                   onClick={() => setOnlyPromos((v) => !v)}
                   className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                     onlyPromos
-                      ? 'bg-[#8C6D2E] border-[#8C6D2E] text-white'
-                      : 'bg-white border-black/12 text-[#3F3F46] hover:bg-[#F4F1EC]'
+                      ? 'bg-[#8C6D2E] border-[#8C6D2E] text-white dark:bg-[#C5A059] dark:border-[#C5A059] dark:text-[#111113]'
+                      : 'bg-white dark:bg-[#18181D] border-black/12 dark:border-white/15 text-[#3F3F46] dark:text-[#D4D4D8] hover:bg-[#F4F1EC] dark:hover:bg-[#23232A]'
                   }`}
                 >
                   <Tag className="w-3.5 h-3.5" />
@@ -499,7 +517,7 @@ export function PublicStorefront({
 
             {/* Category Segmented Controls */}
             <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-1 p-1 bg-[#EFECE5] rounded-xl overflow-x-auto max-w-full">
+              <div className="flex items-center gap-1 p-1 bg-[#EFECE5] dark:bg-[#18181D] rounded-xl overflow-x-auto max-w-full border border-transparent dark:border-white/10">
                 {['Todas', ...PRODUCT_CATEGORIES].map((cat) => (
                   <button
                     key={cat}
@@ -507,8 +525,8 @@ export function PublicStorefront({
                     onClick={() => setSelectedCategory(cat)}
                     className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                       selectedCategory === cat
-                        ? 'bg-white text-[#18181B] shadow-sm'
-                        : 'text-[#52525B] hover:text-[#18181B]'
+                        ? 'bg-white dark:bg-[#27272F] text-[#18181B] dark:text-[#F5F3EE] shadow-sm'
+                        : 'text-[#52525B] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-[#F5F3EE]'
                     }`}
                   >
                     {cat}
@@ -516,7 +534,7 @@ export function PublicStorefront({
                 ))}
               </div>
 
-              <div className="flex items-center gap-3 text-xs text-[#6B6B73]">
+              <div className="flex items-center gap-3 text-xs text-[#6B6B73] dark:text-[#A1A1AA]">
                 <span className="tabular-nums">
                   {filteredProducts.length}{' '}
                   {filteredProducts.length === 1 ? 'pieza encontrada' : 'piezas encontradas'}
@@ -525,7 +543,7 @@ export function PublicStorefront({
                   <button
                     type="button"
                     onClick={resetFilters}
-                    className="text-[#8C6D2E] font-medium hover:underline cursor-pointer"
+                    className="text-[#8C6D2E] dark:text-[#DFC58B] font-medium hover:underline cursor-pointer"
                   >
                     Limpiar filtros
                   </button>
@@ -536,17 +554,17 @@ export function PublicStorefront({
 
           {/* Product Grid */}
           {filteredProducts.length === 0 ? (
-            <div className="mt-10 bg-white rounded-2xl border border-black/8 p-12 text-center">
-              <p className="font-display text-2xl text-[#18181B]">
+            <div className="mt-10 bg-white dark:bg-[#18181D] rounded-2xl border border-black/8 dark:border-white/10 p-12 text-center">
+              <p className="font-display text-2xl text-[#18181B] dark:text-[#F5F3EE]">
                 No encontramos piezas con estos filtros
               </p>
-              <p className="text-sm text-[#6B6B73] mt-2">
+              <p className="text-sm text-[#6B6B73] dark:text-[#A1A1AA] mt-2">
                 Ajusta el rango de precio, material o palabra clave para ver más joyas disponibles.
               </p>
               <button
                 type="button"
                 onClick={resetFilters}
-                className="mt-5 px-5 py-2.5 rounded-lg bg-[#18181B] text-white text-sm font-medium hover:bg-[#2E2E33] transition-colors cursor-pointer"
+                className="mt-5 px-5 py-2.5 rounded-lg bg-[#18181B] dark:bg-[#C5A059] text-white dark:text-[#111113] text-sm font-medium hover:bg-[#2E2E33] dark:hover:bg-[#D4B372] transition-colors cursor-pointer"
               >
                 Mostrar todo el catálogo
               </button>
@@ -561,9 +579,9 @@ export function PublicStorefront({
                   <article
                     key={product.id}
                     onClick={() => handleOpenProduct(product)}
-                    className="group bg-white rounded-2xl border border-black/8 overflow-hidden flex flex-col cursor-pointer transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                    className="group bg-white dark:bg-[#18181D] rounded-2xl border border-black/8 dark:border-white/10 overflow-hidden flex flex-col cursor-pointer transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg dark:hover:border-white/20"
                   >
-                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F4F1EC]">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F4F1EC] dark:bg-[#23232A]">
                       <JewelryImage
                         src={product.images[0]}
                         alt={product.name}
@@ -574,28 +592,30 @@ export function PublicStorefront({
 
                     <div className="p-5 flex-1 flex flex-col justify-between gap-4">
                       <div>
-                        <div className="flex items-center justify-between gap-2 text-xs text-[#6B6B73]">
+                        <div className="flex items-center justify-between gap-2 text-xs text-[#6B6B73] dark:text-[#A1A1AA]">
                           <span className="truncate">
                             {product.category} · {product.material} {product.karat}
                           </span>
                           {!product.available ? (
-                            <span className="text-[#991B1B] font-medium shrink-0">Agotado</span>
+                            <span className="text-[#991B1B] dark:text-red-400 font-medium shrink-0">
+                              Agotado
+                            </span>
                           ) : product.discountPercent > 0 ? (
-                            <span className="text-[#8C6D2E] font-semibold shrink-0">
+                            <span className="text-[#8C6D2E] dark:text-[#DFC58B] font-semibold shrink-0">
                               -{product.discountPercent}%
                             </span>
                           ) : null}
                         </div>
 
-                        <h3 className="mt-1.5 font-display text-xl font-semibold text-[#18181B] leading-snug group-hover:text-[#8C6D2E] transition-colors">
+                        <h3 className="mt-1.5 font-display text-xl font-semibold text-[#18181B] dark:text-[#F5F3EE] leading-snug group-hover:text-[#8C6D2E] dark:group-hover:text-[#DFC58B] transition-colors">
                           {product.name}
                         </h3>
                       </div>
 
-                      <div className="pt-3 border-t border-black/6 flex items-end justify-between gap-3">
+                      <div className="pt-3 border-t border-black/6 dark:border-white/10 flex items-end justify-between gap-3">
                         <div>
                           <div className="flex items-baseline gap-2">
-                            <span className="font-mono-tabular text-lg font-semibold text-[#18181B]">
+                            <span className="font-mono-tabular text-lg font-semibold text-[#18181B] dark:text-[#F5F3EE]">
                               {formatCurrencyMXN(finalPrice)}
                             </span>
                             {product.discountPercent > 0 && (
@@ -604,12 +624,12 @@ export function PublicStorefront({
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-[#6B6B73] mt-0.5 tabular-nums">
+                          <p className="text-xs text-[#6B6B73] dark:text-[#A1A1AA] mt-0.5 tabular-nums">
                             Desde {formatCurrencyMXN(monthly12)}/mes (12 MSI)
                           </p>
                         </div>
 
-                        <span className="text-xs font-medium text-[#18181B] group-hover:translate-x-0.5 transition-transform whitespace-nowrap">
+                        <span className="text-xs font-medium text-[#18181B] dark:text-[#DFC58B] group-hover:translate-x-0.5 transition-transform whitespace-nowrap">
                           Ver ficha →
                         </span>
                       </div>
@@ -624,19 +644,19 @@ export function PublicStorefront({
         {/* 3. PROMOCIONES Y NOVEDADES */}
         <section
           id="promociones"
-          className="bg-[#F3EFE8] border-y border-black/8 py-14 sm:py-16"
+          className="bg-[#F3EFE8] dark:bg-[#15151A] border-y border-black/8 dark:border-white/10 py-14 sm:py-16 transition-colors"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div>
-                <p className="text-xs font-medium uppercase tracking-widest text-[#8C6D2E]">
+                <p className="text-xs font-medium uppercase tracking-widest text-[#8C6D2E] dark:text-[#DFC58B]">
                   Beneficios Vigentes
                 </p>
-                <h2 className="mt-1 font-display text-3xl sm:text-4xl font-semibold text-[#18181B]">
+                <h2 className="mt-1 font-display text-3xl sm:text-4xl font-semibold text-[#18181B] dark:text-[#F5F3EE]">
                   Promociones y novedades
                 </h2>
               </div>
-              <p className="text-sm text-[#52525B] max-w-md">
+              <p className="text-sm text-[#52525B] dark:text-[#A1A1AA] max-w-md">
                 Aprovecha precios preferenciales de temporada y financiamiento directo sin intereses en piezas seleccionadas.
               </p>
             </div>
@@ -657,9 +677,9 @@ export function PublicStorefront({
                     <div
                       key={product.id}
                       onClick={() => handleOpenProduct(product)}
-                      className="bg-white rounded-2xl border border-black/8 p-4 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
+                      className="bg-white dark:bg-[#18181D] rounded-2xl border border-black/8 dark:border-white/10 p-4 flex items-center gap-4 cursor-pointer hover:shadow-md dark:hover:border-white/20 transition-all"
                     >
-                      <div className="w-24 h-24 rounded-xl overflow-hidden bg-[#F4F1EC] shrink-0">
+                      <div className="w-24 h-24 rounded-xl overflow-hidden bg-[#F4F1EC] dark:bg-[#23232A] shrink-0">
                         <JewelryImage
                           src={product.images[0]}
                           alt={product.name}
@@ -667,17 +687,17 @@ export function PublicStorefront({
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-[#8C6D2E]">
+                        <p className="text-xs font-semibold text-[#8C6D2E] dark:text-[#DFC58B]">
                           {product.discountPercent}% de descuento
                         </p>
-                        <h3 className="font-display text-lg font-semibold text-[#18181B] truncate">
+                        <h3 className="font-display text-lg font-semibold text-[#18181B] dark:text-[#F5F3EE] truncate">
                           {product.name}
                         </h3>
-                        <p className="text-xs text-[#6B6B73]">
+                        <p className="text-xs text-[#6B6B73] dark:text-[#A1A1AA]">
                           {product.material} {product.karat}
                         </p>
                         <div className="mt-1.5 flex items-baseline gap-2">
-                          <span className="font-mono-tabular text-sm font-semibold text-[#18181B]">
+                          <span className="font-mono-tabular text-sm font-semibold text-[#18181B] dark:text-[#F5F3EE]">
                             {formatCurrencyMXN(finalPrice)}
                           </span>
                           <span className="font-mono-tabular text-xs text-[#71717A] line-through">
@@ -690,7 +710,7 @@ export function PublicStorefront({
                 })}
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-black/8 p-6 text-sm text-[#52525B]">
+              <div className="bg-white dark:bg-[#18181D] rounded-xl border border-black/8 dark:border-white/10 p-6 text-sm text-[#52525B] dark:text-[#A1A1AA]">
                 Próximamente publicaremos nuevas promociones de temporada. Contáctanos para precios especiales en pedidos personalizados.
               </div>
             )}
@@ -701,24 +721,24 @@ export function PublicStorefront({
         <section id="contacto" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Form Left */}
-            <div className="lg:col-span-6 bg-white rounded-2xl border border-black/8 p-6 sm:p-8 flex flex-col justify-between">
+            <div className="lg:col-span-6 bg-white dark:bg-[#18181D] rounded-2xl border border-black/8 dark:border-white/10 p-6 sm:p-8 flex flex-col justify-between">
               <div>
-                <p className="text-xs font-medium uppercase tracking-widest text-[#8C6D2E]">
+                <p className="text-xs font-medium uppercase tracking-widest text-[#8C6D2E] dark:text-[#DFC58B]">
                   Atención Personalizada
                 </p>
-                <h2 className="mt-1 font-display text-3xl font-semibold text-[#18181B]">
+                <h2 className="mt-1 font-display text-3xl font-semibold text-[#18181B] dark:text-[#F5F3EE]">
                   Agenda una cita o consulta
                 </h2>
-                <p className="mt-2 text-sm text-[#52525B]">
+                <p className="mt-2 text-sm text-[#52525B] dark:text-[#A1A1AA]">
                   Déjanos tus datos y un especialista de Joyería HI te atenderá personalmente.
                 </p>
 
                 {contactSuccess ? (
-                  <div className="mt-6 rounded-xl bg-[#F0FDF4] border border-[#BBF7D0] p-5 flex items-start gap-3 text-[#166534]">
+                  <div className="mt-6 rounded-xl bg-[#F0FDF4] dark:bg-emerald-950/40 border border-[#BBF7D0] dark:border-emerald-800/60 p-5 flex items-start gap-3 text-[#166534] dark:text-emerald-300">
                     <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-semibold">¡Mensaje enviado con éxito!</p>
-                      <p className="text-xs mt-1 text-[#15803D]">
+                      <p className="text-xs mt-1 text-[#15803D] dark:text-emerald-400">
                         Nuestro equipo recibió tu solicitud y se comunicará contigo pronto.
                       </p>
                       <button
@@ -734,7 +754,7 @@ export function PublicStorefront({
                   <form onSubmit={handleContactSubmit} className="mt-6 space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-[#52525B] mb-1">
+                        <label className="block text-xs font-medium text-[#52525B] dark:text-[#A1A1AA] mb-1">
                           Nombre completo *
                         </label>
                         <input
@@ -743,11 +763,11 @@ export function PublicStorefront({
                           value={contactName}
                           onChange={(e) => setContactName(e.target.value)}
                           placeholder="Tu nombre"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-black/12 dark:border-white/15 bg-[#FAF9F7] dark:bg-[#0F0F12] text-sm text-[#18181B] dark:text-[#F5F3EE] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-[#52525B] mb-1">
+                        <label className="block text-xs font-medium text-[#52525B] dark:text-[#A1A1AA] mb-1">
                           Teléfono / WhatsApp *
                         </label>
                         <input
@@ -756,14 +776,14 @@ export function PublicStorefront({
                           value={contactPhone}
                           onChange={(e) => setContactPhone(e.target.value)}
                           placeholder="+52 55 0000 0000"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-black/12 dark:border-white/15 bg-[#FAF9F7] dark:bg-[#0F0F12] text-sm text-[#18181B] dark:text-[#F5F3EE] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-[#52525B] mb-1">
+                        <label className="block text-xs font-medium text-[#52525B] dark:text-[#A1A1AA] mb-1">
                           Correo electrónico *
                         </label>
                         <input
@@ -772,17 +792,17 @@ export function PublicStorefront({
                           value={contactEmail}
                           onChange={(e) => setContactEmail(e.target.value)}
                           placeholder="correo@ejemplo.com"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-black/12 dark:border-white/15 bg-[#FAF9F7] dark:bg-[#0F0F12] text-sm text-[#18181B] dark:text-[#F5F3EE] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-[#52525B] mb-1">
+                        <label className="block text-xs font-medium text-[#52525B] dark:text-[#A1A1AA] mb-1">
                           Pieza o servicio de interés
                         </label>
                         <select
                           value={contactProduct}
                           onChange={(e) => setContactProduct(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40 cursor-pointer"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-black/12 dark:border-white/15 bg-[#FAF9F7] dark:bg-[#0F0F12] text-sm text-[#18181B] dark:text-[#F5F3EE] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40 cursor-pointer"
                         >
                           <option value="Asesoría general">Asesoría general</option>
                           <option value="Diseño a medida / Anillo de compromiso">
@@ -798,7 +818,7 @@ export function PublicStorefront({
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-[#52525B] mb-1">
+                      <label className="block text-xs font-medium text-[#52525B] dark:text-[#A1A1AA] mb-1">
                         Mensaje
                       </label>
                       <textarea
@@ -806,12 +826,12 @@ export function PublicStorefront({
                         value={contactMessage}
                         onChange={(e) => setContactMessage(e.target.value)}
                         placeholder="Cuéntanos qué pieza buscas o el horario ideal para visitarnos..."
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-black/12 dark:border-white/15 bg-[#FAF9F7] dark:bg-[#0F0F12] text-sm text-[#18181B] dark:text-[#F5F3EE] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
                       />
                     </div>
 
                     {contactError && (
-                      <p className="text-xs text-[#991B1B]" role="alert">
+                      <p className="text-xs text-[#991B1B] dark:text-red-400" role="alert">
                         {contactError}
                       </p>
                     )}
@@ -819,7 +839,7 @@ export function PublicStorefront({
                     <button
                       type="submit"
                       disabled={contactLoading}
-                      className="w-full py-3 px-5 rounded-xl bg-[#18181B] text-[#FAF9F7] text-sm font-medium hover:bg-[#2E2E33] disabled:opacity-60 transition-colors cursor-pointer"
+                      className="w-full py-3 px-5 rounded-xl bg-[#18181B] dark:bg-[#C5A059] text-[#FAF9F7] dark:text-[#111113] text-sm font-medium hover:bg-[#2E2E33] dark:hover:bg-[#D4B372] disabled:opacity-60 transition-colors cursor-pointer"
                     >
                       {contactLoading ? 'Enviando...' : 'Enviar solicitud de contacto'}
                     </button>
@@ -830,109 +850,122 @@ export function PublicStorefront({
 
             {/* Store Info & Map Right */}
             <div className="lg:col-span-6 flex flex-col gap-6">
-              <div className="bg-white rounded-2xl border border-black/8 p-6 sm:p-8 space-y-5">
-                <h3 className="font-display text-2xl font-semibold text-[#18181B]">
+              <div className="bg-white dark:bg-[#18181D] rounded-2xl border border-black/8 dark:border-white/10 p-6 sm:p-8 space-y-5">
+                <h3 className="font-display text-2xl font-semibold text-[#18181B] dark:text-[#F5F3EE]">
                   Boutique Joyería HI
                 </h3>
 
-                <div className="space-y-4 text-sm text-[#3F3F46]">
+                <div className="space-y-4 text-sm text-[#3F3F46] dark:text-[#D4D4D8]">
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-4 h-4 text-[#8C6D2E] shrink-0 mt-1" />
+                    <MapPin className="w-4 h-4 text-[#8C6D2E] dark:text-[#DFC58B] shrink-0 mt-1" />
                     <div>
-                      <p className="font-medium text-[#18181B]">{storeInfo.address}</p>
-                      <p className="text-xs text-[#6B6B73]">{storeInfo.city}</p>
+                      <p className="font-medium text-[#18181B] dark:text-[#F5F3EE]">
+                        {storeInfo.address}
+                      </p>
+                      <p className="text-xs text-[#6B6B73] dark:text-[#A1A1AA]">
+                        {storeInfo.city}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <Clock className="w-4 h-4 text-[#8C6D2E] shrink-0 mt-1" />
+                    <Clock className="w-4 h-4 text-[#8C6D2E] dark:text-[#DFC58B] shrink-0 mt-1" />
                     <div>
-                      <p className="font-medium text-[#18181B]">Horarios de atención</p>
-                      <p className="text-xs text-[#6B6B73]">{storeInfo.hours}</p>
+                      <p className="font-medium text-[#18181B] dark:text-[#F5F3EE]">
+                        Horarios de atención
+                      </p>
+                      <p className="text-xs text-[#6B6B73] dark:text-[#A1A1AA]">
+                        {storeInfo.hours}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Phone className="w-4 h-4 text-[#8C6D2E] shrink-0" />
+                    <Phone className="w-4 h-4 text-[#8C6D2E] dark:text-[#DFC58B] shrink-0" />
                     <a
                       href={`tel:${storeInfo.phoneDisplay.replace(/\D/g, '')}`}
-                      className="font-mono-tabular hover:text-[#8C6D2E] transition-colors"
+                      className="font-mono-tabular hover:text-[#8C6D2E] dark:hover:text-[#DFC58B] transition-colors"
                     >
                       {storeInfo.phoneDisplay}
                     </a>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-[#8C6D2E] shrink-0" />
+                    <Mail className="w-4 h-4 text-[#8C6D2E] dark:text-[#DFC58B] shrink-0" />
                     <a
                       href={`mailto:${storeInfo.email}`}
-                      className="hover:text-[#8C6D2E] transition-colors"
+                      className="hover:text-[#8C6D2E] dark:hover:text-[#DFC58B] transition-colors"
                     >
                       {storeInfo.email}
                     </a>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-black/8 flex flex-wrap items-center gap-4 text-xs font-medium text-[#18181B]">
+                <div className="pt-4 border-t border-black/8 dark:border-white/10 flex flex-wrap items-center gap-4 text-xs font-medium text-[#18181B] dark:text-[#F5F3EE]">
                   <a
                     href={buildWhatsAppGeneralUrl(storeInfo.whatsappNumber)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 hover:text-[#15803D] transition-colors"
+                    className="inline-flex items-center gap-1.5 hover:text-[#15803D] dark:hover:text-emerald-400 transition-colors"
                   >
-                    <MessageCircle className="w-4 h-4 text-[#15803D]" />
+                    <MessageCircle className="w-4 h-4 text-[#15803D] dark:text-emerald-400" />
                     <span>WhatsApp Directo</span>
                   </a>
-                  <span aria-hidden="true" className="text-black/20">
+                  <span aria-hidden="true" className="text-black/20 dark:text-white/20">
                     ·
                   </span>
-                  <span className="inline-flex items-center gap-1.5 text-[#52525B]">
-                    <Instagram className="w-4 h-4 text-[#8C6D2E]" />
+                  <span className="inline-flex items-center gap-1.5 text-[#52525B] dark:text-[#A1A1AA]">
+                    <Instagram className="w-4 h-4 text-[#8C6D2E] dark:text-[#DFC58B]" />
                     <span>{storeInfo.instagramHandle}</span>
                   </span>
-                  <span aria-hidden="true" className="text-black/20">
+                  <span aria-hidden="true" className="text-black/20 dark:text-white/20">
                     ·
                   </span>
-                  <span className="inline-flex items-center gap-1.5 text-[#52525B]">
-                    <Share2 className="w-4 h-4 text-[#8C6D2E]" />
+                  <span className="inline-flex items-center gap-1.5 text-[#52525B] dark:text-[#A1A1AA]">
+                    <Share2 className="w-4 h-4 text-[#8C6D2E] dark:text-[#DFC58B]" />
                     <span>{storeInfo.facebookHandle}</span>
                   </span>
                 </div>
               </div>
 
               {/* Architectural Boutique Location Map Card */}
-              <div className="flex-1 min-h-[220px] relative rounded-2xl border border-black/8 overflow-hidden bg-[#ECE7DD] p-6 flex flex-col justify-between">
+              <div className="flex-1 min-h-[220px] relative rounded-2xl border border-black/8 dark:border-white/10 overflow-hidden bg-[#ECE7DD] dark:bg-[#1C1C22] p-6 flex flex-col justify-between">
                 {/* Clean SVG Street Grid Illustration */}
                 <svg
                   viewBox="0 0 600 260"
-                  className="absolute inset-0 w-full h-full object-cover opacity-55 pointer-events-none"
+                  className="absolute inset-0 w-full h-full object-cover opacity-55 dark:opacity-30 pointer-events-none"
                   aria-hidden="true"
                 >
-                  <rect width="600" height="260" fill="#ECE7DD" />
+                  <rect width="600" height="260" fill="#ECE7DD" className="dark:fill-[#1C1C22]" />
                   <path
                     d="M0 70 H600 M0 130 H600 M0 195 H600 M110 0 V260 M240 0 V260 M390 0 V260 M510 0 V260"
                     stroke="#D6CFC2"
+                    className="dark:stroke-[#2E2E38]"
                     strokeWidth="2"
                   />
-                  <path d="M0 130 H600" stroke="#FAF9F7" strokeWidth="10" />
-                  <path d="M300 0 V260" stroke="#FAF9F7" strokeWidth="8" />
-                  <circle cx="300" cy="130" r="22" fill="#8C6D2E" fillOpacity="0.18" />
-                  <circle cx="300" cy="130" r="7" fill="#18181B" />
+                  <path d="M0 130 H600" stroke="#FAF9F7" className="dark:stroke-[#3A3A46]" strokeWidth="10" />
+                  <path d="M300 0 V260" stroke="#FAF9F7" className="dark:stroke-[#3A3A46]" strokeWidth="8" />
+                  <circle cx="300" cy="130" r="22" fill="#8C6D2E" fillOpacity="0.25" />
+                  <circle cx="300" cy="130" r="7" fill="#18181B" className="dark:fill-[#DFC58B]" />
                 </svg>
 
                 <div className="relative z-10 flex items-center justify-between gap-3">
-                  <span className="text-xs font-medium text-[#18181B] bg-white/90 px-3 py-1.5 rounded-lg border border-black/10">
+                  <span className="text-xs font-medium text-[#18181B] dark:text-[#F5F3EE] bg-white/90 dark:bg-[#18181D]/90 px-3 py-1.5 rounded-lg border border-black/10 dark:border-white/15">
                     Polanco · Ciudad de México
                   </span>
-                  <span className="font-mono-tabular text-xs text-[#52525B] bg-white/90 px-2.5 py-1 rounded-lg border border-black/10">
+                  <span className="font-mono-tabular text-xs text-[#52525B] dark:text-[#A1A1AA] bg-white/90 dark:bg-[#18181D]/90 px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/15">
                     19.4319° N, 99.1965° W
                   </span>
                 </div>
 
-                <div className="relative z-10 flex flex-wrap items-end justify-between gap-3 bg-white/95 backdrop-blur-sm rounded-xl p-4 border border-black/10">
+                <div className="relative z-10 flex flex-wrap items-end justify-between gap-3 bg-white/95 dark:bg-[#18181D]/95 backdrop-blur-sm rounded-xl p-4 border border-black/10 dark:border-white/15">
                   <div>
-                    <p className="text-xs text-[#6B6B73]">Ubicación de tienda física</p>
-                    <p className="text-sm font-semibold text-[#18181B]">{storeInfo.address}</p>
+                    <p className="text-xs text-[#6B6B73] dark:text-[#A1A1AA]">
+                      Ubicación de tienda física
+                    </p>
+                    <p className="text-sm font-semibold text-[#18181B] dark:text-[#F5F3EE]">
+                      {storeInfo.address}
+                    </p>
                   </div>
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -940,7 +973,7 @@ export function PublicStorefront({
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3.5 py-2 rounded-lg bg-[#18181B] text-white text-xs font-medium hover:bg-[#2E2E33] transition-colors whitespace-nowrap"
+                    className="px-3.5 py-2 rounded-lg bg-[#18181B] dark:bg-[#C5A059] text-white dark:text-[#111113] text-xs font-medium hover:bg-[#2E2E33] dark:hover:bg-[#D4B372] transition-colors whitespace-nowrap"
                   >
                     Abrir en Google Maps
                   </a>
@@ -952,27 +985,29 @@ export function PublicStorefront({
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-black/8 bg-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6B6B73]">
+      <footer className="border-t border-black/8 dark:border-white/10 bg-white dark:bg-[#141418] py-8 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6B6B73] dark:text-[#A1A1AA]">
           <div className="flex items-center gap-3">
-            <span className="font-display text-base font-semibold text-[#18181B]">Joyería HI</span>
+            <span className="font-display text-base font-semibold text-[#18181B] dark:text-[#F5F3EE]">
+              Joyería HI
+            </span>
             <span aria-hidden="true">·</span>
             <span>© {new Date().getFullYear()} Todos los derechos reservados.</span>
           </div>
           <div className="flex items-center gap-5">
-            <a href="#catalogo" className="hover:text-[#18181B] transition-colors">
+            <a href="#catalogo" className="hover:text-[#18181B] dark:hover:text-[#F5F3EE] transition-colors">
               Catálogo
             </a>
-            <a href="#promociones" className="hover:text-[#18181B] transition-colors">
+            <a href="#promociones" className="hover:text-[#18181B] dark:hover:text-[#F5F3EE] transition-colors">
               Promociones
             </a>
-            <a href="#contacto" className="hover:text-[#18181B] transition-colors">
+            <a href="#contacto" className="hover:text-[#18181B] dark:hover:text-[#F5F3EE] transition-colors">
               Contacto
             </a>
             <button
               type="button"
               onClick={onOpenAdmin}
-              className="hover:text-[#18181B] transition-colors cursor-pointer"
+              className="hover:text-[#18181B] dark:hover:text-[#F5F3EE] transition-colors cursor-pointer"
             >
               Portal Administrativo
             </button>

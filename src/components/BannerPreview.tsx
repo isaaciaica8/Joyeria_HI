@@ -32,7 +32,7 @@ export function BannerPreview({ banner, onAction, compact = false }: BannerPrevi
 
   return (
     <div
-      className={`relative w-full overflow-hidden rounded-xl border border-black/10 ${
+      className={`relative w-full overflow-hidden rounded-xl border border-black/10 dark:border-white/10 ${
         compact ? 'min-h-[260px]' : 'min-h-[380px] sm:min-h-[460px] lg:min-h-[520px]'
       }`}
     >

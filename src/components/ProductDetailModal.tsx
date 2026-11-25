@@ -71,14 +71,14 @@ export function ProductDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-[2px] p-3 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 dark:bg-black/75 backdrop-blur-[2px] p-3 sm:p-6 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="product-modal-title"
     >
-      <div className="relative w-full max-w-5xl bg-[#FAF9F7] rounded-2xl border border-black/10 shadow-2xl overflow-hidden my-auto max-h-[94vh] flex flex-col">
-        <div className="flex items-center justify-between px-5 sm:px-8 py-4 border-b border-black/8 bg-white shrink-0">
-          <div className="flex items-center gap-2 text-xs text-[#6B6B73]">
+      <div className="relative w-full max-w-5xl bg-[#FAF9F7] dark:bg-[#141418] rounded-2xl border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden my-auto max-h-[94vh] flex flex-col">
+        <div className="flex items-center justify-between px-5 sm:px-8 py-4 border-b border-black/8 dark:border-white/10 bg-white dark:bg-[#18181D] shrink-0">
+          <div className="flex items-center gap-2 text-xs text-[#6B6B73] dark:text-[#A1A1AA]">
             <span>{product.category}</span>
             <span aria-hidden="true">·</span>
             <span>{product.material}</span>
@@ -91,7 +91,7 @@ export function ProductDetailModal({
             type="button"
             onClick={onClose}
             aria-label="Cerrar ficha de producto"
-            className="p-2 rounded-lg text-[#52525B] hover:text-[#18181B] hover:bg-black/5 transition-colors cursor-pointer"
+            className="p-2 rounded-lg text-[#52525B] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-[#F5F3EE] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -101,7 +101,7 @@ export function ProductDetailModal({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Gallery Left */}
             <div className="lg:col-span-6 space-y-3">
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#F0ECE4] border border-black/8">
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#F0ECE4] dark:bg-[#1F1F26] border border-black/8 dark:border-white/10">
                 <JewelryImage
                   src={photos[activePhotoIndex]}
                   alt={`${product.name} - vista ${activePhotoIndex + 1}`}
@@ -116,7 +116,7 @@ export function ProductDetailModal({
                         setActivePhotoIndex((i) => (i - 1 + photos.length) % photos.length)
                       }
                       aria-label="Foto anterior"
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#18181B] flex items-center justify-center shadow hover:bg-white transition-colors cursor-pointer"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 dark:bg-[#18181D]/90 text-[#18181B] dark:text-[#F5F3EE] flex items-center justify-center shadow hover:bg-white dark:hover:bg-[#23232A] transition-colors cursor-pointer"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
@@ -124,7 +124,7 @@ export function ProductDetailModal({
                       type="button"
                       onClick={() => setActivePhotoIndex((i) => (i + 1) % photos.length)}
                       aria-label="Foto siguiente"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#18181B] flex items-center justify-center shadow hover:bg-white transition-colors cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 dark:bg-[#18181D]/90 text-[#18181B] dark:text-[#F5F3EE] flex items-center justify-center shadow hover:bg-white dark:hover:bg-[#23232A] transition-colors cursor-pointer"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -141,8 +141,8 @@ export function ProductDetailModal({
                       onClick={() => setActivePhotoIndex(idx)}
                       className={`aspect-[4/3] rounded-lg overflow-hidden border transition-all cursor-pointer ${
                         idx === activePhotoIndex
-                          ? 'border-[#8C6D2E] ring-2 ring-[#8C6D2E]/30'
-                          : 'border-black/10 opacity-75 hover:opacity-100'
+                          ? 'border-[#8C6D2E] dark:border-[#DFC58B] ring-2 ring-[#8C6D2E]/30'
+                          : 'border-black/10 dark:border-white/10 opacity-75 hover:opacity-100'
                       }`}
                     >
                       <JewelryImage
@@ -162,13 +162,15 @@ export function ProductDetailModal({
                 <div className="flex items-center justify-between gap-4">
                   <span
                     className={`text-xs font-medium ${
-                      product.available ? 'text-[#166534]' : 'text-[#991B1B]'
+                      product.available
+                        ? 'text-[#166534] dark:text-emerald-400'
+                        : 'text-[#991B1B] dark:text-red-400'
                     }`}
                   >
                     {product.available ? 'Disponible en boutique' : 'Pieza agotada temporalmente'}
                   </span>
                   {product.discountPercent > 0 && (
-                    <span className="text-xs font-semibold text-[#8C6D2E]">
+                    <span className="text-xs font-semibold text-[#8C6D2E] dark:text-[#DFC58B]">
                       {product.discountPercent}% de descuento vigente
                     </span>
                   )}
@@ -176,55 +178,63 @@ export function ProductDetailModal({
 
                 <h2
                   id="product-modal-title"
-                  className="mt-2 font-display text-3xl sm:text-4xl font-semibold text-[#18181B] leading-tight [text-wrap:balance]"
+                  className="mt-2 font-display text-3xl sm:text-4xl font-semibold text-[#18181B] dark:text-[#F5F3EE] leading-tight [text-wrap:balance]"
                 >
                   {product.name}
                 </h2>
 
                 <div className="mt-4 flex items-baseline gap-3">
-                  <span className="font-mono-tabular text-2xl sm:text-3xl font-semibold text-[#18181B]">
+                  <span className="font-mono-tabular text-2xl sm:text-3xl font-semibold text-[#18181B] dark:text-[#F5F3EE]">
                     {formatCurrencyMXN(finalPrice)} MXN
                   </span>
                   {product.discountPercent > 0 && (
-                    <span className="font-mono-tabular text-base text-[#71717A] line-through">
+                    <span className="font-mono-tabular text-base text-[#71717A] dark:text-[#71717A] line-through">
                       {formatCurrencyMXN(product.price)}
                     </span>
                   )}
                 </div>
                 {savings > 0 && (
-                  <p className="mt-1 text-xs text-[#8C6D2E] font-medium">
+                  <p className="mt-1 text-xs text-[#8C6D2E] dark:text-[#DFC58B] font-medium">
                     Ahorras {formatCurrencyMXN(savings)} MXN sobre precio de lista
                   </p>
                 )}
               </div>
 
-              <p className="text-sm sm:text-base text-[#3F3F46] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#3F3F46] dark:text-[#D4D4D8] leading-relaxed">
                 {product.description}
               </p>
 
               {/* Specs row */}
-              <div className="grid grid-cols-3 gap-4 py-4 border-y border-black/8">
+              <div className="grid grid-cols-3 gap-4 py-4 border-y border-black/8 dark:border-white/10">
                 <div>
-                  <p className="text-xs text-[#71717A]">Material</p>
-                  <p className="mt-0.5 text-sm font-medium text-[#18181B]">{product.material}</p>
+                  <p className="text-xs text-[#71717A] dark:text-[#A1A1AA]">Material</p>
+                  <p className="mt-0.5 text-sm font-medium text-[#18181B] dark:text-[#F5F3EE]">
+                    {product.material}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#71717A]">Quilataje / Ley</p>
-                  <p className="mt-0.5 text-sm font-medium text-[#18181B]">{product.karat}</p>
+                  <p className="text-xs text-[#71717A] dark:text-[#A1A1AA]">Quilataje / Ley</p>
+                  <p className="mt-0.5 text-sm font-medium text-[#18181B] dark:text-[#F5F3EE]">
+                    {product.karat}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#71717A]">Categoría</p>
-                  <p className="mt-0.5 text-sm font-medium text-[#18181B]">{product.category}</p>
+                  <p className="text-xs text-[#71717A] dark:text-[#A1A1AA]">Categoría</p>
+                  <p className="mt-0.5 text-sm font-medium text-[#18181B] dark:text-[#F5F3EE]">
+                    {product.category}
+                  </p>
                 </div>
               </div>
 
               {/* Installments calculator */}
-              <div className="bg-white rounded-xl border border-black/8 p-4 sm:p-5 space-y-3">
+              <div className="bg-white dark:bg-[#18181D] rounded-xl border border-black/8 dark:border-white/10 p-4 sm:p-5 space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-[#18181B]">
+                  <span className="text-sm font-semibold text-[#18181B] dark:text-[#F5F3EE]">
                     Calculadora de pagos a meses
                   </span>
-                  <span className="text-xs text-[#6B6B73]">Meses sin intereses</span>
+                  <span className="text-xs text-[#6B6B73] dark:text-[#A1A1AA]">
+                    Meses sin intereses
+                  </span>
                 </div>
 
                 <div className="flex flex-wrap gap-1.5">
@@ -235,8 +245,8 @@ export function ProductDetailModal({
                       onClick={() => setSelectedMonths(m)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                         selectedMonths === m
-                          ? 'bg-[#18181B] text-white'
-                          : 'bg-[#F4F1EC] text-[#3F3F46] hover:bg-[#E7E2D8]'
+                          ? 'bg-[#18181B] dark:bg-[#C5A059] text-white dark:text-[#111113]'
+                          : 'bg-[#F4F1EC] dark:bg-[#23232A] text-[#3F3F46] dark:text-[#D4D4D8] hover:bg-[#E7E2D8] dark:hover:bg-[#2D2D36]'
                       }`}
                     >
                       {m} meses
@@ -244,11 +254,11 @@ export function ProductDetailModal({
                   ))}
                 </div>
 
-                <div className="flex items-baseline justify-between pt-2 border-t border-black/6">
-                  <span className="text-xs text-[#52525B]">
+                <div className="flex items-baseline justify-between pt-2 border-t border-black/6 dark:border-white/10">
+                  <span className="text-xs text-[#52525B] dark:text-[#A1A1AA]">
                     Mensualidad estimada ({selectedMonths} pagos)
                   </span>
-                  <span className="font-mono-tabular text-lg font-semibold text-[#18181B]">
+                  <span className="font-mono-tabular text-lg font-semibold text-[#18181B] dark:text-[#F5F3EE]">
                     {formatCurrencyMXN(monthlyAmount)} MXN / mes
                   </span>
                 </div>
@@ -259,7 +269,7 @@ export function ProductDetailModal({
                 <button
                   type="button"
                   onClick={() => setShowInterestForm((prev) => !prev)}
-                  className="flex-1 px-5 py-3 rounded-xl bg-[#18181B] text-[#FAF9F7] text-sm font-medium hover:bg-[#2E2E33] transition-colors whitespace-nowrap cursor-pointer"
+                  className="flex-1 px-5 py-3 rounded-xl bg-[#18181B] dark:bg-[#F5F3EE] text-[#FAF9F7] dark:text-[#18181B] text-sm font-medium hover:bg-[#2E2E33] dark:hover:bg-[#E7E2D8] transition-colors whitespace-nowrap cursor-pointer"
                 >
                   {showInterestForm ? 'Ocultar formulario' : 'Me interesa'}
                 </button>
@@ -275,20 +285,20 @@ export function ProductDetailModal({
                 </a>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-[#6B6B73]">
-                <ShieldCheck className="w-4 h-4 text-[#8C6D2E] shrink-0" />
+              <div className="flex items-center gap-2 text-xs text-[#6B6B73] dark:text-[#A1A1AA]">
+                <ShieldCheck className="w-4 h-4 text-[#8C6D2E] dark:text-[#DFC58B] shrink-0" />
                 <span>Certificado de autenticidad y ajuste sin costo incluido en tu compra.</span>
               </div>
 
               {/* Inline Interest Lead Form */}
               {showInterestForm && (
-                <div className="bg-white rounded-xl border border-black/10 p-5 space-y-4">
+                <div className="bg-white dark:bg-[#18181D] rounded-xl border border-black/10 dark:border-white/10 p-5 space-y-4">
                   {submitted ? (
-                    <div className="flex items-start gap-3 text-[#166534]">
+                    <div className="flex items-start gap-3 text-[#166534] dark:text-emerald-400">
                       <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
                       <div>
                         <p className="text-sm font-semibold">Solicitud registrada correctamente</p>
-                        <p className="text-xs text-[#3F3F46] mt-1">
+                        <p className="text-xs text-[#3F3F46] dark:text-[#D4D4D8] mt-1">
                           Un asesor de Joyería HI se pondrá en contacto contigo a la brevedad respecto a{' '}
                           <span className="font-medium">{product.name}</span>.
                         </p>
@@ -296,13 +306,13 @@ export function ProductDetailModal({
                     </div>
                   ) : (
                     <form onSubmit={handleInterestSubmit} className="space-y-3">
-                      <h3 className="text-sm font-semibold text-[#18181B]">
+                      <h3 className="text-sm font-semibold text-[#18181B] dark:text-[#F5F3EE]">
                         Solicitar información de esta pieza
                       </h3>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-medium text-[#52525B] mb-1">
+                          <label className="block text-xs font-medium text-[#52525B] dark:text-[#A1A1AA] mb-1">
                             Nombre completo *
                           </label>
                           <input
@@ -311,11 +321,11 @@ export function ProductDetailModal({
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Tu nombre"
-                            className="w-full px-3 py-2 rounded-lg border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                            className="w-full px-3 py-2 rounded-lg border border-black/12 dark:border-white/15 bg-[#FAF9F7] dark:bg-[#0F0F12] text-sm text-[#18181B] dark:text-[#F5F3EE] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-[#52525B] mb-1">
+                          <label className="block text-xs font-medium text-[#52525B] dark:text-[#A1A1AA] mb-1">
                             Teléfono / WhatsApp *
                           </label>
                           <input
@@ -324,13 +334,13 @@ export function ProductDetailModal({
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             placeholder="+52 55 0000 0000"
-                            className="w-full px-3 py-2 rounded-lg border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                            className="w-full px-3 py-2 rounded-lg border border-black/12 dark:border-white/15 bg-[#FAF9F7] dark:bg-[#0F0F12] text-sm text-[#18181B] dark:text-[#F5F3EE] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-[#52525B] mb-1">
+                        <label className="block text-xs font-medium text-[#52525B] dark:text-[#A1A1AA] mb-1">
                           Correo electrónico *
                         </label>
                         <input
@@ -339,12 +349,12 @@ export function ProductDetailModal({
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="correo@ejemplo.com"
-                          className="w-full px-3 py-2 rounded-lg border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                          className="w-full px-3 py-2 rounded-lg border border-black/12 dark:border-white/15 bg-[#FAF9F7] dark:bg-[#0F0F12] text-sm text-[#18181B] dark:text-[#F5F3EE] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-[#52525B] mb-1">
+                        <label className="block text-xs font-medium text-[#52525B] dark:text-[#A1A1AA] mb-1">
                           Notas o talla deseada (opcional)
                         </label>
                         <textarea
@@ -352,12 +362,12 @@ export function ProductDetailModal({
                           value={message}
                           onChange={(e) => setMessage(e.target.value)}
                           placeholder="Ej. Talla 6, quisiera ver opciones a 12 meses..."
-                          className="w-full px-3 py-2 rounded-lg border border-black/12 bg-[#FAF9F7] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                          className="w-full px-3 py-2 rounded-lg border border-black/12 dark:border-white/15 bg-[#FAF9F7] dark:bg-[#0F0F12] text-sm text-[#18181B] dark:text-[#F5F3EE] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
                         />
                       </div>
 
                       {submitError && (
-                        <p className="text-xs text-[#991B1B]" role="alert">
+                        <p className="text-xs text-[#991B1B] dark:text-red-400" role="alert">
                           {submitError}
                         </p>
                       )}
@@ -365,7 +375,7 @@ export function ProductDetailModal({
                       <button
                         type="submit"
                         disabled={submitting}
-                        className="w-full py-2.5 px-4 rounded-lg bg-[#8C6D2E] text-white text-sm font-medium hover:bg-[#765B25] disabled:opacity-60 transition-colors cursor-pointer"
+                        className="w-full py-2.5 px-4 rounded-lg bg-[#8C6D2E] hover:bg-[#765B25] dark:bg-[#C5A059] dark:text-[#111113] dark:hover:bg-[#D4B372] text-white text-sm font-medium disabled:opacity-60 transition-colors cursor-pointer"
                       >
                         {submitting ? 'Enviando solicitud...' : 'Enviar interés a Joyería HI'}
                       </button>
