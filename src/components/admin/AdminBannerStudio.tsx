@@ -7,11 +7,10 @@ import type {
   ProductCategory,
 } from '../../types';
 import {
-  createBanner,
-  deleteBanner,
-  updateBanner,
-  uploadAdminImage,
-} from '../../services/api';
+  deleteBannerInFirestore,
+  saveBannerInFirestore,
+  uploadAdminImageWithFirebaseAuth,
+} from '../../services/firestoreStore';
 import {
   PRODUCT_CATEGORIES,
   formatShortDate,
@@ -22,9 +21,7 @@ import { BannerPreview } from '../BannerPreview';
 import { JewelryImage } from '../JewelryImage';
 
 interface AdminBannerStudioProps {
-  token: string;
   banners: AdBanner[];
-  onRefresh: () => Promise<void>;
 }
 
 const TEMPLATE_OPTIONS: {
@@ -83,11 +80,7 @@ function readFileAsDataUrl(file: File): Promise<string> {
   });
 }
 
-export function AdminBannerStudio({
-  token,
-  banners,
-  onRefresh,
-}: AdminBannerStudioProps) {
+export function AdminBannerStudio({ banners }: AdminBannerStudioProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const today = getTodayISODate();
 
@@ -120,7 +113,7 @@ export function AdminBannerStudio({
     setUploading(true);
     try {
       const dataUrl = await readFileAsDataUrl(file);
-      const res = await uploadAdminImage(token, dataUrl);
+      const res = await uploadAdminImageWithFirebaseAuth(dataUrl);
       setImageUrl(res.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al subir la imagen.');
@@ -185,13 +178,12 @@ export function AdminBannerStudio({
         active,
       };
       if (editingId) {
-        await updateBanner(token, editingId, payload);
+        await saveBannerInFirestore(editingId, payload);
         setFeedback('Publicidad actualizada correctamente.');
       } else {
-        await createBanner(token, payload);
+        await saveBannerInFirestore(null, payload);
         setFeedback('Nueva campaña publicitaria publicada.');
       }
-      await onRefresh();
       setEditingId(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo guardar la publicidad.');
@@ -201,14 +193,12 @@ export function AdminBannerStudio({
   }
 
   async function handleToggleActive(banner: AdBanner) {
-    await updateBanner(token, banner.id, { active: !banner.active });
-    await onRefresh();
+    await saveBannerInFirestore(banner.id, { ...banner, active: !banner.active });
   }
 
   async function handleDeleteBanner(id: string) {
-    await deleteBanner(token, id);
+    await deleteBannerInFirestore(id);
     if (editingId === id) resetEditor();
-    await onRefresh();
   }
 
   return (

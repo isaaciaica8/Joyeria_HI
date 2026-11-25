@@ -1,0 +1,297 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Pieza de joyería en el catálogo de Joyería HI.",
+      "type": "object",
+      "properties": {
+        "sku": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32,
+          "pattern": "^[A-Za-z0-9\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Anillos", "Collares", "Aretes", "Pulseras", "Relojes"]
+        },
+        "material": {
+          "type": "string",
+          "enum": ["Oro Amarillo", "Oro Blanco", "Oro Rosa", "Plata", "Platino"]
+        },
+        "karat": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16
+        },
+        "price": {
+          "type": "number"
+        },
+        "discountPercent": {
+          "type": "number"
+        },
+        "images": {
+          "type": "array"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1500
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "featured": {
+          "type": "boolean"
+        },
+        "views": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "sku",
+        "name",
+        "category",
+        "material",
+        "karat",
+        "price",
+        "discountPercent",
+        "images",
+        "description",
+        "available",
+        "featured",
+        "views",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AdBanner": {
+      "title": "AdBanner",
+      "description": "Banner publicitario programable con plantilla y vigencia por fechas.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 140
+        },
+        "subtitle": {
+          "type": "string",
+          "maxLength": 350
+        },
+        "ctaText": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "imageUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "template": {
+          "type": "string",
+          "enum": ["editorial-gold", "obsidian-noir", "alabaster-minimal"]
+        },
+        "placement": {
+          "type": "string",
+          "enum": ["hero-carousel", "promo-strip", "catalog-banner"]
+        },
+        "startDate": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "maxLength": 10
+        },
+        "endDate": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "maxLength": 10
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "linkedCategory": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "title",
+        "subtitle",
+        "ctaText",
+        "imageUrl",
+        "template",
+        "placement",
+        "startDate",
+        "endDate",
+        "active",
+        "linkedCategory",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Lead": {
+      "title": "Lead",
+      "description": "Cliente interesado capturado desde la ficha de producto o formulario de contacto.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 32
+        },
+        "email": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 160
+        },
+        "productId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "productName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 800
+        },
+        "source": {
+          "type": "string",
+          "enum": ["ficha", "contacto"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["nuevo", "contactado", "cerrado"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "name",
+        "phone",
+        "email",
+        "productName",
+        "message",
+        "source",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ProductView": {
+      "title": "ProductView",
+      "description": "Registro anónimo de consulta de una ficha de producto.",
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["productId", "createdAt"]
+    },
+    "StoreInfo": {
+      "title": "StoreInfo",
+      "description": "Información de contacto, horarios y redes sociales de Joyería HI.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 80 },
+        "whatsappNumber": { "type": "string", "maxLength": 24 },
+        "phoneDisplay": { "type": "string", "maxLength": 40 },
+        "email": { "type": "string", "maxLength": 120 },
+        "address": { "type": "string", "maxLength": 200 },
+        "city": { "type": "string", "maxLength": 120 },
+        "hours": { "type": "string", "maxLength": 160 },
+        "instagramHandle": { "type": "string", "maxLength": 80 },
+        "facebookHandle": { "type": "string", "maxLength": 80 }
+      },
+      "required": [
+        "name",
+        "whatsappNumber",
+        "phoneDisplay",
+        "email",
+        "address",
+        "city",
+        "hours",
+        "instagramHandle",
+        "facebookHandle"
+      ]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Registro de administrador autorizado de Joyería HI.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 160 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Catálogo de joyas visible al público; editable solo por administradores."
+    },
+    "/banners/{bannerId}": {
+      "schema": { "$ref": "#/entities/AdBanner" },
+      "description": "Banners publicitarios visibles al público; editables solo por administradores."
+    },
+    "/leads/{leadId}": {
+      "schema": { "$ref": "#/entities/Lead" },
+      "description": "Clientes interesados; creación pública restringida a estado inicial, lectura/gestión solo por administradores."
+    },
+    "/productViews/{viewId}": {
+      "schema": { "$ref": "#/entities/ProductView" },
+      "description": "Consultas de fichas de producto para analítica de productos más consultados."
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/StoreInfo" },
+      "description": "Configuración pública de la boutique Joyería HI."
+    },
+    "/admins/{userId}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Lista de administradores autorizados."
+    }
+  }
+}

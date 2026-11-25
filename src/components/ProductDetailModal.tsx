@@ -8,7 +8,7 @@ import {
   X,
 } from 'lucide-react';
 import type { Product, StoreInfo } from '../types';
-import { submitLead } from '../services/api';
+import { createPublicLead } from '../services/firestoreStore';
 import {
   INSTALLMENT_MONTHS,
   buildWhatsAppProductUrl,
@@ -52,7 +52,7 @@ export function ProductDetailModal({
     setSubmitError('');
     setSubmitting(true);
     try {
-      await submitLead({
+      await createPublicLead({
         name,
         phone,
         email,

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { ImagePlus, Star, Trash2, Upload, X } from 'lucide-react';
 import type { Product, ProductCategory, ProductMaterial } from '../../types';
-import { uploadAdminImage } from '../../services/api';
+import { uploadAdminImageWithFirebaseAuth } from '../../services/firestoreStore';
 import {
   PRODUCT_CATEGORIES,
   PRODUCT_MATERIALS,
@@ -11,7 +11,6 @@ import {
 import { JewelryImage } from '../JewelryImage';
 
 interface AdminProductModalProps {
-  token: string;
   initialProduct?: Product | null;
   onSave: (payload: Partial<Product>) => Promise<void>;
   onClose: () => void;
@@ -27,7 +26,6 @@ function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 export function AdminProductModal({
-  token,
   initialProduct,
   onSave,
   onClose,
@@ -72,7 +70,7 @@ export function AdminProductModal({
       const uploadedUrls: string[] = [];
       for (const file of fileArray) {
         const dataUrl = await readFileAsDataUrl(file);
-        const res = await uploadAdminImage(token, dataUrl);
+        const res = await uploadAdminImageWithFirebaseAuth(dataUrl);
         uploadedUrls.push(res.url);
       }
       setImages((prev) => [...prev, ...uploadedUrls]);

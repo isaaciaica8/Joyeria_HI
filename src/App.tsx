@@ -3,17 +3,27 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { onAuthStateChanged, type User } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, BOOTSTRAP_ADMIN_EMAIL, db, signOutAdmin } from './firebase';
 import type {
+  AdBanner,
   AdminOverviewResponse,
-  AuthStatusResponse,
-  StorefrontResponse,
+  Lead,
+  Product,
+  StoreInfo,
 } from './types';
 import {
-  fetchAdminOverview,
-  fetchAuthStatus,
-  fetchStorefront,
-} from './services/api';
+  seedFirestoreIfEmpty,
+  subscribeBanners,
+  subscribeLeads,
+  subscribeProducts,
+  subscribeProductViewCounts,
+  subscribeStoreInfo,
+} from './services/firestoreStore';
+import { DEFAULT_STORE_INFO, SEED_BANNERS, SEED_PRODUCTS } from './services/seedData';
+import { getTodayISODate, isBannerCurrentlyVisible } from './utils/formatters';
 import { PublicStorefront } from './components/PublicStorefront';
 import { AdminAuthScreen } from './components/admin/AdminAuthScreen';
 import { AdminPanel } from './components/admin/AdminPanel';
@@ -21,170 +31,177 @@ import { AdminPanel } from './components/admin/AdminPanel';
 export default function App() {
   const [mode, setMode] = useState<'public' | 'admin'>('public');
 
-  // Public storefront state
-  const [storefront, setStorefront] = useState<StorefrontResponse | null>(null);
-  const [loadingStore, setLoadingStore] = useState(true);
-  const [storeError, setStoreError] = useState('');
+  // Firebase Auth state
+  const [authReady, setAuthReady] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAuthorizedAdmin, setIsAuthorizedAdmin] = useState(false);
 
-  // Admin auth & overview state (token kept strictly in React memory)
-  const [adminToken, setAdminToken] = useState<string | null>(null);
-  const [adminUsername, setAdminUsername] = useState<string>('');
-  const [authStatus, setAuthStatus] = useState<AuthStatusResponse | null>(null);
-  const [adminOverview, setAdminOverview] = useState<AdminOverviewResponse | null>(null);
-  const [loadingAdmin, setLoadingAdmin] = useState(false);
+  // Real-time Firestore collections
+  const [products, setProducts] = useState<Product[]>(SEED_PRODUCTS);
+  const [productsLoaded, setProductsLoaded] = useState(false);
+  const [banners, setBanners] = useState<AdBanner[]>(SEED_BANNERS);
+  const [bannersLoaded, setBannersLoaded] = useState(false);
+  const [storeInfo, setStoreInfo] = useState<StoreInfo>(DEFAULT_STORE_INFO);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
 
-  const loadStorefront = useCallback(async () => {
-    try {
-      setStoreError('');
-      const data = await fetchStorefront();
-      setStorefront(data);
-    } catch (err) {
-      setStoreError(
-        err instanceof Error ? err.message : 'No se pudo cargar el catálogo de Joyería HI.'
-      );
-    } finally {
-      setLoadingStore(false);
-    }
-  }, []);
-
+  // Track auth state & verify admin role
   useEffect(() => {
-    void loadStorefront();
-  }, [loadStorefront]);
-
-  const loadAdminSession = useCallback(async (tokenToUse: string | null) => {
-    setLoadingAdmin(true);
-    try {
-      const status = await fetchAuthStatus(tokenToUse);
-      setAuthStatus(status);
-      if (tokenToUse && status.authenticated) {
-        const overview = await fetchAdminOverview(tokenToUse);
-        setAdminOverview(overview);
-        if (status.username) setAdminUsername(status.username);
+    const unsubAuth = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      if (user && user.emailVerified) {
+        if (user.email === BOOTSTRAP_ADMIN_EMAIL) {
+          setIsAuthorizedAdmin(true);
+        } else {
+          try {
+            const adminDoc = await getDoc(doc(db, 'admins', user.uid));
+            setIsAuthorizedAdmin(adminDoc.exists());
+          } catch {
+            setIsAuthorizedAdmin(false);
+          }
+        }
       } else {
-        setAdminToken(null);
-        setAdminOverview(null);
+        setIsAuthorizedAdmin(false);
       }
-    } catch {
-      setAdminToken(null);
-      setAdminOverview(null);
-    } finally {
-      setLoadingAdmin(false);
-    }
+      setAuthReady(true);
+    });
+    return () => unsubAuth();
   }, []);
 
-  function handleOpenAdmin() {
-    setMode('admin');
-    void loadAdminSession(adminToken);
-  }
+  // Public real-time listeners (products, banners, boutique settings)
+  useEffect(() => {
+    const unsubProducts = subscribeProducts((items, isEmpty) => {
+      setProducts(isEmpty ? SEED_PRODUCTS : items);
+      setProductsLoaded(true);
+    });
+    const unsubBanners = subscribeBanners((items, isEmpty) => {
+      setBanners(isEmpty ? SEED_BANNERS : items);
+      setBannersLoaded(true);
+    });
+    const unsubStore = subscribeStoreInfo((info) => {
+      setStoreInfo(info);
+    });
 
-  async function handleAuthenticated(token: string, username: string) {
-    setAdminToken(token);
-    setAdminUsername(username);
-    await loadAdminSession(token);
-  }
+    return () => {
+      unsubProducts();
+      unsubBanners();
+      unsubStore();
+    };
+  }, []);
 
-  async function handleRefreshAdmin() {
-    if (!adminToken) return;
-    const overview = await fetchAdminOverview(adminToken);
-    setAdminOverview(overview);
-    await loadStorefront();
-  }
+  // Admin-only listeners & automatic first-run Firestore seeding
+  useEffect(() => {
+    if (!authReady || !currentUser || !isAuthorizedAdmin) {
+      setLeads([]);
+      return;
+    }
 
-  function handleBackToStore() {
-    setMode('public');
-    void loadStorefront();
-  }
+    void seedFirestoreIfEmpty();
+    const unsubLeads = subscribeLeads((items) => {
+      setLeads(items);
+    });
+    const unsubViews = subscribeProductViewCounts((counts) => {
+      setViewCounts(counts);
+    });
 
-  function handleLogout() {
-    setAdminToken(null);
-    setAdminUsername('');
-    setAdminOverview(null);
-    void loadAdminSession(null);
-  }
+    return () => {
+      unsubLeads();
+      unsubViews();
+    };
+  }, [authReady, currentUser, isAuthorizedAdmin]);
+
+  const productsWithLiveViews = useMemo(() => {
+    return products.map((p) => ({
+      ...p,
+      views: p.views + (viewCounts[p.id] || 0),
+    }));
+  }, [products, viewCounts]);
+
+  const storefrontData = useMemo(() => {
+    const today = getTodayISODate();
+    return {
+      products: productsWithLiveViews,
+      banners: banners.filter((b) => isBannerCurrentlyVisible(b, today)),
+      storeInfo,
+    };
+  }, [productsWithLiveViews, banners, storeInfo]);
+
+  const adminOverview: AdminOverviewResponse = useMemo(() => {
+    const today = getTodayISODate();
+    const activePromotions = productsWithLiveViews.filter((p) => p.discountPercent > 0).length;
+    const activeBanners = banners.filter((b) => isBannerCurrentlyVisible(b, today)).length;
+    const newLeadsCount = leads.filter((l) => l.status === 'nuevo').length;
+    const totalViews = productsWithLiveViews.reduce((acc, p) => acc + p.views, 0);
+
+    return {
+      products: productsWithLiveViews,
+      banners,
+      leads,
+      storeInfo,
+      stats: {
+        totalProducts: productsWithLiveViews.length,
+        availableProducts: productsWithLiveViews.filter((p) => p.available).length,
+        activePromotions,
+        activeBanners,
+        newLeadsCount,
+        totalLeadsCount: leads.length,
+        totalViews,
+      },
+    };
+  }, [productsWithLiveViews, banners, leads, storeInfo]);
 
   function handleProductViewed(productId: string, views: number) {
-    setStorefront((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        products: prev.products.map((p) =>
-          p.id === productId ? { ...p, views } : p
-        ),
-      };
-    });
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productId ? { ...p, views } : p))
+    );
+  }
+
+  async function handleLogout() {
+    await signOutAdmin();
   }
 
   if (mode === 'admin') {
-    if (loadingAdmin && !adminOverview && !authStatus) {
+    if (!authReady) {
       return (
         <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6">
-          <div className="text-sm text-slate-600">Cargando panel administrativo...</div>
+          <div className="text-sm text-slate-600">Verificando sesión de Firebase...</div>
         </div>
       );
     }
 
-    if (!adminToken || !adminOverview) {
+    if (!currentUser || !isAuthorizedAdmin) {
       return (
         <AdminAuthScreen
-          authStatus={
-            authStatus || {
-              initialized: false,
-              envConfigured: false,
-              authenticated: false,
-            }
-          }
-          onAuthenticated={handleAuthenticated}
-          onBackToStore={handleBackToStore}
+          currentUser={currentUser}
+          isAuthorizedAdmin={isAuthorizedAdmin}
+          onBackToStore={() => setMode('public')}
         />
       );
     }
 
     return (
       <AdminPanel
-        token={adminToken}
-        username={adminUsername}
+        username={currentUser.displayName || currentUser.email || 'Administrador'}
         overview={adminOverview}
-        onRefresh={handleRefreshAdmin}
-        onBackToStore={handleBackToStore}
-        onLogout={handleLogout}
+        onBackToStore={() => setMode('public')}
+        onLogout={() => void handleLogout()}
       />
     );
   }
 
-  if (loadingStore) {
+  if (!productsLoaded && !bannersLoaded) {
     return (
       <div className="min-h-screen bg-[#FAF9F7] flex flex-col items-center justify-center p-6">
         <p className="font-display text-3xl font-semibold text-[#18181B]">Joyería HI</p>
-        <p className="mt-2 text-sm text-[#6B6B73]">Preparando colección...</p>
-      </div>
-    );
-  }
-
-  if (storeError || !storefront) {
-    return (
-      <div className="min-h-screen bg-[#FAF9F7] flex flex-col items-center justify-center p-6 text-center">
-        <p className="font-display text-3xl font-semibold text-[#18181B]">Joyería HI</p>
-        <p className="mt-2 text-sm text-[#991B1B]">
-          {storeError || 'Ocurrió un error al cargar el catálogo.'}
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setLoadingStore(true);
-            void loadStorefront();
-          }}
-          className="mt-4 px-5 py-2.5 rounded-lg bg-[#18181B] text-white text-sm font-medium cursor-pointer"
-        >
-          Reintentar
-        </button>
+        <p className="mt-2 text-sm text-[#6B6B73]">Conectando con catálogo...</p>
       </div>
     );
   }
 
   return (
     <PublicStorefront
-      data={storefront}
-      onOpenAdmin={handleOpenAdmin}
+      data={storefrontData}
+      onOpenAdmin={() => setMode('admin')}
       onProductViewed={handleProductViewed}
     />
   );

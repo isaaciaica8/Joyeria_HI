@@ -24,14 +24,13 @@ import type {
   ProductCategory,
 } from '../../types';
 import {
-  applyPromotion,
-  createProduct,
-  deleteLead,
-  deleteProduct,
-  toggleProductAvailability,
-  updateLeadStatus,
-  updateProduct,
-} from '../../services/api';
+  applyPromotionInFirestore,
+  deleteLeadInFirestore,
+  deleteProductInFirestore,
+  saveProductInFirestore,
+  toggleProductAvailabilityInFirestore,
+  updateLeadStatusInFirestore,
+} from '../../services/firestoreStore';
 import {
   PRODUCT_CATEGORIES,
   buildWhatsAppGeneralUrl,
@@ -50,10 +49,8 @@ import { AdminBannerStudio } from './AdminBannerStudio';
 import { AdminProductModal } from './AdminProductModal';
 
 interface AdminPanelProps {
-  token: string;
   username: string;
   overview: AdminOverviewResponse;
-  onRefresh: () => Promise<void>;
   onBackToStore: () => void;
   onLogout: () => void;
 }
@@ -74,10 +71,8 @@ const SECTION_LABELS: Record<AdminSection, string> = {
 };
 
 export function AdminPanel({
-  token,
   username,
   overview,
-  onRefresh,
   onBackToStore,
   onLogout,
 }: AdminPanelProps) {
@@ -157,22 +152,15 @@ export function AdminPanel({
   }, [leads, leadProductFilter, leadStatusFilter, leadDateFrom, leadDateTo]);
 
   async function handleSaveProduct(payload: Partial<Product>) {
-    if (editingProduct) {
-      await updateProduct(token, editingProduct.id, payload);
-    } else {
-      await createProduct(token, payload);
-    }
-    await onRefresh();
+    await saveProductInFirestore(editingProduct ? editingProduct.id : null, payload);
   }
 
   async function handleToggleAvailability(p: Product) {
-    await toggleProductAvailability(token, p.id, !p.available);
-    await onRefresh();
+    await toggleProductAvailabilityInFirestore(p.id, !p.available);
   }
 
   async function handleDeleteProduct(id: string) {
-    await deleteProduct(token, id);
-    await onRefresh();
+    await deleteProductInFirestore(id);
   }
 
   async function handleApplyPromotion(e: React.FormEvent) {
@@ -183,15 +171,15 @@ export function AdminPanel({
       const targetId =
         promoScope === 'category' ? promoTargetCategory : promoTargetProductId;
       const pct = Math.min(90, Math.max(0, Number(promoPercent) || 0));
-      const res = await applyPromotion(token, {
-        scope: promoScope,
+      const updatedCount = await applyPromotionInFirestore(
+        promoScope,
         targetId,
-        discountPercent: pct,
-      });
-      await onRefresh();
+        pct,
+        products
+      );
       setPromoNotice(
-        `Descuento del ${pct}% aplicado a ${res.updatedCount} ${
-          res.updatedCount === 1 ? 'pieza' : 'piezas'
+        `Descuento del ${pct}% aplicado a ${updatedCount} ${
+          updatedCount === 1 ? 'pieza' : 'piezas'
         }.`
       );
     } finally {
@@ -200,22 +188,15 @@ export function AdminPanel({
   }
 
   async function handleRemoveProductDiscount(productId: string) {
-    await applyPromotion(token, {
-      scope: 'product',
-      targetId: productId,
-      discountPercent: 0,
-    });
-    await onRefresh();
+    await applyPromotionInFirestore('product', productId, 0, products);
   }
 
   async function handleLeadStatusChange(id: string, status: Lead['status']) {
-    await updateLeadStatus(token, id, status);
-    await onRefresh();
+    await updateLeadStatusInFirestore(id, status);
   }
 
   async function handleDeleteLead(id: string) {
-    await deleteLead(token, id);
-    await onRefresh();
+    await deleteLeadInFirestore(id);
   }
 
   const navItems: { id: AdminSection; label: string; icon: typeof LayoutDashboard; count?: number }[] = [
@@ -707,13 +688,7 @@ export function AdminPanel({
           )}
 
           {/* 3. GENERADOR DE PUBLICIDAD */}
-          {section === 'publicidad' && (
-            <AdminBannerStudio
-              token={token}
-              banners={banners}
-              onRefresh={onRefresh}
-            />
-          )}
+          {section === 'publicidad' && <AdminBannerStudio banners={banners} />}
 
           {/* 4. GESTIÓN DE PROMOCIONES */}
           {section === 'promociones' && (
@@ -1062,7 +1037,6 @@ export function AdminPanel({
       {/* Add/Edit Product Modal */}
       {productModalOpen && (
         <AdminProductModal
-          token={token}
           initialProduct={editingProduct}
           onSave={handleSaveProduct}
           onClose={() => {

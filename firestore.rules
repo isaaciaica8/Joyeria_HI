@@ -1,0 +1,293 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------
+    // Global Safety Net
+    // ---------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ---------------------------------------------------------
+    // Global Primitives & Helpers
+    // ---------------------------------------------------------
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        request.auth.token.email == 'isaaciaica8@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidCategory(cat) {
+      return cat in ['Anillos', 'Collares', 'Aretes', 'Pulseras', 'Relojes'];
+    }
+
+    function isValidMaterial(mat) {
+      return mat in ['Oro Amarillo', 'Oro Blanco', 'Oro Rosa', 'Plata', 'Platino'];
+    }
+
+    function isValidBannerTemplate(tpl) {
+      return tpl in ['editorial-gold', 'obsidian-noir', 'alabaster-minimal'];
+    }
+
+    function isValidBannerPlacement(pl) {
+      return pl in ['hero-carousel', 'promo-strip', 'catalog-banner'];
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll([
+          'sku', 'name', 'category', 'material', 'karat',
+          'price', 'discountPercent', 'images', 'description',
+          'available', 'featured', 'views', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'sku', 'name', 'category', 'material', 'karat',
+          'price', 'discountPercent', 'images', 'description',
+          'available', 'featured', 'views', 'createdAt', 'updatedAt'
+        ])
+        && data.sku is string && data.sku.size() >= 2 && data.sku.size() <= 32
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 120
+        && data.category is string && isValidCategory(data.category)
+        && data.material is string && isValidMaterial(data.material)
+        && data.karat is string && data.karat.size() >= 1 && data.karat.size() <= 16
+        && data.price is number && data.price > 0 && data.price <= 50000000
+        && data.discountPercent is number && data.discountPercent >= 0 && data.discountPercent <= 90
+        && data.images is list && data.images.size() >= 1 && data.images.size() <= 10
+        && data.images[0] is string && data.images[0].size() >= 1 && data.images[0].size() <= 500
+        && data.description is string && data.description.size() <= 1500
+        && data.available is bool
+        && data.featured is bool
+        && data.views is number && data.views >= 0
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidBanner(data) {
+      return data.keys().hasAll([
+          'title', 'subtitle', 'ctaText', 'imageUrl', 'template',
+          'placement', 'startDate', 'endDate', 'active', 'linkedCategory',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'subtitle', 'ctaText', 'imageUrl', 'template',
+          'placement', 'startDate', 'endDate', 'active', 'linkedCategory',
+          'createdAt', 'updatedAt'
+        ])
+        && data.title is string && data.title.size() >= 2 && data.title.size() <= 140
+        && data.subtitle is string && data.subtitle.size() <= 350
+        && data.ctaText is string && data.ctaText.size() >= 1 && data.ctaText.size() <= 50
+        && data.imageUrl is string && data.imageUrl.size() >= 1 && data.imageUrl.size() <= 500
+        && data.template is string && isValidBannerTemplate(data.template)
+        && data.placement is string && isValidBannerPlacement(data.placement)
+        && data.startDate is string && data.startDate.size() == 10 && data.startDate.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.endDate is string && data.endDate.size() == 10 && data.endDate.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.active is bool
+        && data.linkedCategory is string && data.linkedCategory.size() <= 32
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidLead(data) {
+      return data.keys().hasAll([
+          'name', 'phone', 'email', 'productName', 'message',
+          'source', 'status', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'name', 'phone', 'email', 'productId', 'productName',
+          'message', 'source', 'status', 'createdAt', 'updatedAt'
+        ])
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 120
+        && data.phone is string && data.phone.size() >= 6 && data.phone.size() <= 32
+        && data.email is string && data.email.size() >= 5 && data.email.size() <= 160
+        && (!('productId' in data) || (data.productId is string && data.productId.size() <= 128))
+        && data.productName is string && data.productName.size() >= 1 && data.productName.size() <= 160
+        && data.message is string && data.message.size() <= 800
+        && data.source in ['ficha', 'contacto']
+        && data.status in ['nuevo', 'contactado', 'cerrado']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidProductView(data) {
+      return data.keys().hasAll(['productId', 'createdAt'])
+        && data.keys().hasOnly(['productId', 'createdAt'])
+        && isValidId(data.productId)
+        && data.createdAt is timestamp;
+    }
+
+    function isValidStoreInfo(data) {
+      return data.keys().hasAll([
+          'name', 'whatsappNumber', 'phoneDisplay', 'email',
+          'address', 'city', 'hours', 'instagramHandle', 'facebookHandle'
+        ])
+        && data.keys().hasOnly([
+          'name', 'whatsappNumber', 'phoneDisplay', 'email',
+          'address', 'city', 'hours', 'instagramHandle', 'facebookHandle'
+        ])
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 80
+        && data.whatsappNumber is string && data.whatsappNumber.size() >= 6 && data.whatsappNumber.size() <= 24
+        && data.phoneDisplay is string && data.phoneDisplay.size() >= 6 && data.phoneDisplay.size() <= 40
+        && data.email is string && data.email.size() >= 5 && data.email.size() <= 120
+        && data.address is string && data.address.size() >= 4 && data.address.size() <= 200
+        && data.city is string && data.city.size() >= 2 && data.city.size() <= 120
+        && data.hours is string && data.hours.size() >= 4 && data.hours.size() <= 160
+        && data.instagramHandle is string && data.instagramHandle.size() <= 80
+        && data.facebookHandle is string && data.facebookHandle.size() <= 80;
+    }
+
+    function isValidAdminUser(data) {
+      return data.keys().hasAll(['email', 'createdAt'])
+        && data.keys().hasOnly(['email', 'createdAt'])
+        && data.email is string && data.email.size() >= 5 && data.email.size() <= 160
+        && data.createdAt is timestamp;
+    }
+
+    // ---------------------------------------------------------
+    // Collection: /test/connection (Startup Connectivity Check)
+    // ---------------------------------------------------------
+    match /test/connection {
+      allow get: if true;
+    }
+
+    // ---------------------------------------------------------
+    // Collection: /products/{productId}
+    // ---------------------------------------------------------
+    match /products/{productId} {
+      allow get: if isValidId(productId);
+      allow list: if true;
+
+      allow create: if isAdmin()
+        && isValidId(productId)
+        && isValidProduct(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isAdmin()
+        && isValidId(productId)
+        && isValidProduct(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'sku', 'name', 'category', 'material', 'karat',
+          'price', 'discountPercent', 'images', 'description',
+          'available', 'featured', 'views', 'updatedAt'
+        ]);
+
+      allow delete: if isAdmin() && isValidId(productId);
+    }
+
+    // ---------------------------------------------------------
+    // Collection: /banners/{bannerId}
+    // ---------------------------------------------------------
+    match /banners/{bannerId} {
+      allow get: if isValidId(bannerId);
+      allow list: if true;
+
+      allow create: if isAdmin()
+        && isValidId(bannerId)
+        && isValidBanner(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isAdmin()
+        && isValidId(bannerId)
+        && isValidBanner(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'subtitle', 'ctaText', 'imageUrl', 'template',
+          'placement', 'startDate', 'endDate', 'active', 'linkedCategory',
+          'updatedAt'
+        ]);
+
+      allow delete: if isAdmin() && isValidId(bannerId);
+    }
+
+    // ---------------------------------------------------------
+    // Collection: /leads/{leadId} (Strict PII Isolation)
+    // ---------------------------------------------------------
+    match /leads/{leadId} {
+      allow get: if isAdmin() && isValidId(leadId);
+      allow list: if isAdmin();
+
+      allow create: if isValidId(leadId)
+        && isValidLead(incoming())
+        && incoming().status == 'nuevo'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isAdmin()
+        && isValidId(leadId)
+        && isValidLead(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+
+      allow delete: if isAdmin() && isValidId(leadId);
+    }
+
+    // ---------------------------------------------------------
+    // Collection: /productViews/{viewId}
+    // ---------------------------------------------------------
+    match /productViews/{viewId} {
+      allow get: if isAdmin() && isValidId(viewId);
+      allow list: if isAdmin();
+
+      allow create: if isValidId(viewId)
+        && isValidProductView(incoming())
+        && incoming().createdAt == request.time
+        && exists(/databases/$(database)/documents/products/$(incoming().productId));
+    }
+
+    // ---------------------------------------------------------
+    // Collection: /settings/{settingId}
+    // ---------------------------------------------------------
+    match /settings/{settingId} {
+      allow get: if isValidId(settingId);
+      allow list: if false;
+
+      allow create, update: if isAdmin()
+        && isValidId(settingId)
+        && isValidStoreInfo(incoming());
+
+      allow delete: if isAdmin() && isValidId(settingId);
+    }
+
+    // ---------------------------------------------------------
+    // Collection: /admins/{userId}
+    // ---------------------------------------------------------
+    match /admins/{userId} {
+      allow get: if isValidId(userId) && (isAdmin() || (isVerifiedUser() && request.auth.uid == userId));
+      allow list: if isAdmin();
+
+      allow create: if isAdmin()
+        && isValidId(userId)
+        && isValidAdminUser(incoming())
+        && incoming().createdAt == request.time;
+
+      allow delete: if isAdmin() && isValidId(userId);
+    }
+  }
+}

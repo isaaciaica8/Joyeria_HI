@@ -19,7 +19,7 @@ import {
   X,
 } from 'lucide-react';
 import type { Product, ProductCategory, StorefrontResponse } from '../types';
-import { submitLead, trackProductView } from '../services/api';
+import { createPublicLead, recordProductView } from '../services/firestoreStore';
 import {
   PRODUCT_CATEGORIES,
   PRODUCT_MATERIALS,
@@ -139,8 +139,8 @@ export function PublicStorefront({
   async function handleOpenProduct(product: Product) {
     setSelectedProduct(product);
     try {
-      const res = await trackProductView(product.id);
-      onProductViewed(product.id, res.views);
+      await recordProductView(product.id);
+      onProductViewed(product.id, product.views + 1);
     } catch {
       // View tracking is non-blocking
     }
@@ -159,7 +159,7 @@ export function PublicStorefront({
     setContactError('');
     setContactLoading(true);
     try {
-      await submitLead({
+      await createPublicLead({
         name: contactName,
         phone: contactPhone,
         email: contactEmail,
