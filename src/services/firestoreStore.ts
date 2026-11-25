@@ -20,6 +20,7 @@ import type {
   Lead,
   Product,
   ProductCategory,
+  ProductViewEvent,
   StoreInfo,
 } from '../types';
 import { DEFAULT_STORE_INFO, SEED_BANNERS, SEED_PRODUCTS } from './seedData';
@@ -176,26 +177,43 @@ export function subscribeLeads(onData: (leads: Lead[]) => void): Unsubscribe {
   );
 }
 
-export function subscribeProductViewCounts(
-  onData: (countsByProductId: Record<string, number>) => void
+export function subscribeProductViews(
+  onData: (views: ProductViewEvent[]) => void
 ): Unsubscribe {
   const path = 'productViews';
   return onSnapshot(
     collection(db, path),
     (snapshot) => {
-      const counts: Record<string, number> = {};
+      const items: ProductViewEvent[] = [];
       snapshot.docs.forEach((d) => {
-        const productId = String(d.data().productId || '');
-        if (productId) {
-          counts[productId] = (counts[productId] || 0) + 1;
-        }
+        const data = d.data();
+        const productId = String(data.productId || '');
+        if (!productId) return;
+        items.push({
+          id: d.id,
+          productId,
+          createdAt: toISOStringSafe(data.createdAt),
+        });
       });
-      onData(counts);
+      items.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+      onData(items);
     },
     (error) => {
       handleFirestoreError(error, OperationType.LIST, path);
     }
   );
+}
+
+export function subscribeProductViewCounts(
+  onData: (countsByProductId: Record<string, number>) => void
+): Unsubscribe {
+  return subscribeProductViews((views) => {
+    const counts: Record<string, number> = {};
+    views.forEach((v) => {
+      counts[v.productId] = (counts[v.productId] || 0) + 1;
+    });
+    onData(counts);
+  });
 }
 
 export async function seedFirestoreIfEmpty(): Promise<void> {

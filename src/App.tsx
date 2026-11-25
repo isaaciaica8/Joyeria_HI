@@ -12,6 +12,7 @@ import type {
   AdminOverviewResponse,
   Lead,
   Product,
+  ProductViewEvent,
   StoreInfo,
 } from './types';
 import {
@@ -19,7 +20,7 @@ import {
   subscribeBanners,
   subscribeLeads,
   subscribeProducts,
-  subscribeProductViewCounts,
+  subscribeProductViews,
   subscribeStoreInfo,
 } from './services/firestoreStore';
 import { DEFAULT_STORE_INFO, SEED_BANNERS, SEED_PRODUCTS } from './services/seedData';
@@ -43,7 +44,7 @@ export default function App() {
   const [bannersLoaded, setBannersLoaded] = useState(false);
   const [storeInfo, setStoreInfo] = useState<StoreInfo>(DEFAULT_STORE_INFO);
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
+  const [productViewEvents, setProductViewEvents] = useState<ProductViewEvent[]>([]);
 
   // Track auth state & verify admin role
   useEffect(() => {
@@ -93,6 +94,7 @@ export default function App() {
   useEffect(() => {
     if (!authReady || !currentUser || !isAuthorizedAdmin) {
       setLeads([]);
+      setProductViewEvents([]);
       return;
     }
 
@@ -100,8 +102,8 @@ export default function App() {
     const unsubLeads = subscribeLeads((items) => {
       setLeads(items);
     });
-    const unsubViews = subscribeProductViewCounts((counts) => {
-      setViewCounts(counts);
+    const unsubViews = subscribeProductViews((views) => {
+      setProductViewEvents(views);
     });
 
     return () => {
@@ -109,6 +111,14 @@ export default function App() {
       unsubViews();
     };
   }, [authReady, currentUser, isAuthorizedAdmin]);
+
+  const viewCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    productViewEvents.forEach((v) => {
+      counts[v.productId] = (counts[v.productId] || 0) + 1;
+    });
+    return counts;
+  }, [productViewEvents]);
 
   const productsWithLiveViews = useMemo(() => {
     return products.map((p) => ({
@@ -137,6 +147,7 @@ export default function App() {
       products: productsWithLiveViews,
       banners,
       leads,
+      productViews: productViewEvents,
       storeInfo,
       stats: {
         totalProducts: productsWithLiveViews.length,
@@ -148,7 +159,7 @@ export default function App() {
         totalViews,
       },
     };
-  }, [productsWithLiveViews, banners, leads, storeInfo]);
+  }, [productsWithLiveViews, banners, leads, productViewEvents, storeInfo]);
 
   function handleProductViewed(productId: string, views: number) {
     setProducts((prev) =>

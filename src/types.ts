@@ -88,10 +88,17 @@ export interface StorefrontResponse {
   storeInfo: StoreInfo;
 }
 
+export interface ProductViewEvent {
+  id: string;
+  productId: string;
+  createdAt: string;
+}
+
 export interface AdminOverviewResponse {
   products: Product[];
   banners: AdBanner[];
   leads: Lead[];
+  productViews: ProductViewEvent[];
   storeInfo: StoreInfo;
   stats: {
     totalProducts: number;

@@ -47,6 +47,7 @@ import {
 import { JewelryImage } from '../JewelryImage';
 import { AdminBannerStudio } from './AdminBannerStudio';
 import { AdminProductModal } from './AdminProductModal';
+import { CategoryInterestChart } from './CategoryInterestChart';
 
 interface AdminPanelProps {
   username: string;
@@ -76,7 +77,7 @@ export function AdminPanel({
   onBackToStore,
   onLogout,
 }: AdminPanelProps) {
-  const { products, banners, leads, storeInfo, stats } = overview;
+  const { products, banners, leads, productViews, storeInfo, stats } = overview;
 
   const [section, setSection] = useState<AdminSection>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -112,11 +113,18 @@ export function AdminPanel({
   const maxViews = topConsultedProducts[0]?.views || 1;
 
   const filteredProducts = useMemo(() => {
-    const q = productSearch.trim().toLowerCase();
+    const normalizeText = (text: string) =>
+      text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    const q = normalizeText(productSearch.trim());
     return products.filter((p) => {
       if (productCatFilter !== 'Todas' && p.category !== productCatFilter) return false;
       if (q) {
-        const hay = `${p.name} ${p.sku} ${p.material} ${p.category}`.toLowerCase();
+        const hay = normalizeText(
+          `${p.name} ${p.category} ${p.sku} ${p.material} ${p.karat}`
+        );
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -416,6 +424,13 @@ export function AdminPanel({
                 </div>
               </div>
 
+              {/* Category Interest Volume Over Time */}
+              <CategoryInterestChart
+                products={products}
+                leads={leads}
+                productViews={productViews}
+              />
+
               {/* Most Consulted + Recent Leads */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 <div className="lg:col-span-7 bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -562,127 +577,181 @@ export function AdminPanel({
                 </div>
               </div>
 
-              {/* Filter row */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="search"
-                    value={productSearch}
-                    onChange={(e) => setProductSearch(e.target.value)}
-                    placeholder="Buscar por nombre, SKU o material..."
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
-                  />
+              {/* Search & Category Filter Row */}
+              <div className="space-y-2.5">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={productSearch}
+                      onChange={(e) => setProductSearch(e.target.value)}
+                      aria-label="Buscar productos por nombre o categoría"
+                      placeholder="Buscar pieza por nombre, categoría, SKU o material..."
+                      className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                    />
+                    {productSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setProductSearch('')}
+                        aria-label="Limpiar búsqueda"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <select
+                    aria-label="Filtrar por categoría"
+                    value={productCatFilter}
+                    onChange={(e) => setProductCatFilter(e.target.value)}
+                    className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#8C6D2E]/40"
+                  >
+                    <option value="Todas">Todas las categorías</option>
+                    {PRODUCT_CATEGORIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <select
-                  value={productCatFilter}
-                  onChange={(e) => setProductCatFilter(e.target.value)}
-                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm cursor-pointer"
-                >
-                  <option value="Todas">Todas las categorías</option>
-                  {PRODUCT_CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
+
+                <div className="flex items-center justify-between text-xs text-slate-500 px-0.5">
+                  <span className="tabular-nums">
+                    Mostrando {filteredProducts.length} de {products.length}{' '}
+                    {products.length === 1 ? 'pieza' : 'piezas'}
+                  </span>
+                  {(productSearch.trim() !== '' || productCatFilter !== 'Todas') && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductSearch('');
+                        setProductCatFilter('Todas');
+                      }}
+                      className="font-medium text-[#8C6D2E] hover:underline cursor-pointer"
+                    >
+                      Limpiar filtros
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Products Table */}
               <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[760px]">
-                  <thead>
-                    <tr className="border-b border-slate-200 text-xs font-semibold text-slate-500 bg-slate-50/70">
-                      <th className="py-3 px-4">Pieza</th>
-                      <th className="py-3 px-4">Categoría / Material</th>
-                      <th className="py-3 px-4 text-right">Precio Lista</th>
-                      <th className="py-3 px-4 text-right">Dto.</th>
-                      <th className="py-3 px-4 text-right">Precio Final</th>
-                      <th className="py-3 px-4 text-right">Consultas</th>
-                      <th className="py-3 px-4">Disponibilidad</th>
-                      <th className="py-3 px-4 text-right">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-sm">
-                    {filteredProducts.map((p) => {
-                      const finalPrice = getFinalPrice(p.price, p.discountPercent);
-                      return (
-                        <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-12 h-10 rounded-lg overflow-hidden bg-slate-100 shrink-0">
-                                <JewelryImage
-                                  src={p.images[0]}
-                                  alt={p.name}
-                                  className="w-full h-full object-cover"
-                                />
+                {filteredProducts.length === 0 ? (
+                  <div className="p-10 text-center space-y-2">
+                    <p className="text-sm font-medium text-slate-900">
+                      No se encontraron piezas que coincidan con tu búsqueda
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Intenta buscar con otro nombre, categoría o limpia los filtros activos.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductSearch('');
+                        setProductCatFilter('Todas');
+                      }}
+                      className="mt-2 inline-flex items-center px-3.5 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
+                    >
+                      Mostrar todas las piezas
+                    </button>
+                  </div>
+                ) : (
+                  <table className="w-full text-left border-collapse min-w-[760px]">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-xs font-semibold text-slate-500 bg-slate-50/70">
+                        <th className="py-3 px-4">Pieza</th>
+                        <th className="py-3 px-4">Categoría / Material</th>
+                        <th className="py-3 px-4 text-right">Precio Lista</th>
+                        <th className="py-3 px-4 text-right">Dto.</th>
+                        <th className="py-3 px-4 text-right">Precio Final</th>
+                        <th className="py-3 px-4 text-right">Consultas</th>
+                        <th className="py-3 px-4">Disponibilidad</th>
+                        <th className="py-3 px-4 text-right">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-sm">
+                      {filteredProducts.map((p) => {
+                        const finalPrice = getFinalPrice(p.price, p.discountPercent);
+                        return (
+                          <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
+                            <td className="py-3 px-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-10 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+                                  <JewelryImage
+                                    src={p.images[0]}
+                                    alt={p.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-medium text-slate-900 truncate max-w-[200px]">
+                                    {p.name}
+                                  </p>
+                                  <p className="text-xs text-slate-500 font-mono-tabular">
+                                    {p.sku} · {p.images.length} foto{p.images.length === 1 ? '' : 's'}
+                                  </p>
+                                </div>
                               </div>
-                              <div className="min-w-0">
-                                <p className="font-medium text-slate-900 truncate max-w-[200px]">
-                                  {p.name}
-                                </p>
-                                <p className="text-xs text-slate-500 font-mono-tabular">
-                                  {p.sku} · {p.images.length} foto{p.images.length === 1 ? '' : 's'}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-xs text-slate-600">
-                            {p.category} · {p.material} {p.karat}
-                          </td>
-                          <td className="py-3 px-4 text-right font-mono-tabular text-slate-600">
-                            {formatCurrencyMXN(p.price)}
-                          </td>
-                          <td className="py-3 px-4 text-right font-mono-tabular text-[#8C6D2E] font-medium">
-                            {p.discountPercent > 0 ? `${p.discountPercent}%` : '—'}
-                          </td>
-                          <td className="py-3 px-4 text-right font-mono-tabular font-semibold text-slate-900">
-                            {formatCurrencyMXN(finalPrice)}
-                          </td>
-                          <td className="py-3 px-4 text-right font-mono-tabular text-slate-600">
-                            {p.views}
-                          </td>
-                          <td className="py-3 px-4">
-                            <button
-                              type="button"
-                              onClick={() => void handleToggleAvailability(p)}
-                              className={`text-xs font-medium px-2.5 py-1 rounded-lg border cursor-pointer transition-colors ${
-                                p.available
-                                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
-                                  : 'border-red-200 bg-red-50 text-red-800 hover:bg-red-100'
-                              }`}
-                            >
-                              {p.available ? 'Disponible' : 'Agotado'}
-                            </button>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <div className="inline-flex items-center gap-1">
+                            </td>
+                            <td className="py-3 px-4 text-xs text-slate-600">
+                              {p.category} · {p.material} {p.karat}
+                            </td>
+                            <td className="py-3 px-4 text-right font-mono-tabular text-slate-600">
+                              {formatCurrencyMXN(p.price)}
+                            </td>
+                            <td className="py-3 px-4 text-right font-mono-tabular text-[#8C6D2E] font-medium">
+                              {p.discountPercent > 0 ? `${p.discountPercent}%` : '—'}
+                            </td>
+                            <td className="py-3 px-4 text-right font-mono-tabular font-semibold text-slate-900">
+                              {formatCurrencyMXN(finalPrice)}
+                            </td>
+                            <td className="py-3 px-4 text-right font-mono-tabular text-slate-600">
+                              {p.views}
+                            </td>
+                            <td className="py-3 px-4">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setEditingProduct(p);
-                                  setProductModalOpen(true);
-                                }}
-                                aria-label={`Editar ${p.name}`}
-                                className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 cursor-pointer"
+                                onClick={() => void handleToggleAvailability(p)}
+                                className={`text-xs font-medium px-2.5 py-1 rounded-lg border cursor-pointer transition-colors ${
+                                  p.available
+                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                                    : 'border-red-200 bg-red-50 text-red-800 hover:bg-red-100'
+                                }`}
                               >
-                                <Edit3 className="w-4 h-4" />
+                                {p.available ? 'Disponible' : 'Agotado'}
                               </button>
-                              <button
-                                type="button"
-                                onClick={() => void handleDeleteProduct(p.id)}
-                                aria-label={`Eliminar ${p.name}`}
-                                className="p-2 rounded-lg text-red-600 hover:bg-red-50 cursor-pointer"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              <div className="inline-flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingProduct(p);
+                                    setProductModalOpen(true);
+                                  }}
+                                  aria-label={`Editar ${p.name}`}
+                                  className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 cursor-pointer"
+                                >
+                                  <Edit3 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => void handleDeleteProduct(p.id)}
+                                  aria-label={`Eliminar ${p.name}`}
+                                  className="p-2 rounded-lg text-red-600 hover:bg-red-50 cursor-pointer"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           )}
